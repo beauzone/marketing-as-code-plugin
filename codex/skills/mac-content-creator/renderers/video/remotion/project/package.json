@@ -1,0 +1,24 @@
+{
+  "name": "document-creator-remotion-project",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "remotion studio src/index.ts",
+    "render": "remotion render src/index.ts DocumentCreatorVideo out/video.mp4",
+    "still": "remotion still src/index.ts DocumentCreatorStill out/still.png"
+  },
+  "dependencies": {
+    "remotion": "4.0.424",
+    "@remotion/bundler": "4.0.424",
+    "@remotion/renderer": "4.0.424",
+    "@remotion/transitions": "4.0.424",
+    "zod": "3.24.1"
+  },
+  "devDependencies": {
+    "@types/react": "18.2.79",
+    "@types/react-dom": "18.2.25",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "typescript": "5.5.4"
+  }
+}

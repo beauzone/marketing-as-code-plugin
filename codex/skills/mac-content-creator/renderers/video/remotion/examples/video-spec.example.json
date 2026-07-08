@@ -1,0 +1,15 @@
+{
+  "meta": {"fps": 30, "width": 1280, "height": 720, "durationInFrames": 240},
+  "brand": {
+    "background": "#0B0F19",
+    "foreground": "#FFFFFF",
+    "accent": "#2D6CDF",
+    "fontHeading": "Inter",
+    "fontBody": "Inter"
+  },
+  "scenes": [
+    {"type": "title", "title": "Hello from Remotion", "startFrame": 0, "durationInFrames": 60},
+    {"type": "bullets", "title": "Key Points", "bullets": ["Brand-pack aware", "Deterministic SSR render"], "startFrame": 60, "durationInFrames": 120},
+    {"type": "cta", "title": "Next step", "cta": "Add your content spec", "startFrame": 180, "durationInFrames": 60}
+  ]
+}
