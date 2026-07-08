@@ -1,0 +1,5 @@
+interface:
+  display_name: "MaC Content Creator"
+  short_description: "Create branded pptx/docx/xlsx/pdf and Remotion videos from your company pack."
+  brand_color: "#2D6CDF"
+  default_prompt: "Create a branded one-pager from our company pack."
