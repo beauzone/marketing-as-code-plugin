@@ -1,0 +1,51 @@
+# Minimal brand pack defaults used when no company/user brand pack exists.
+# Company-specific overrides should be stored at: companies/<company_id>/brand-pack/brand-pack.yaml
+
+id: system-default
+version: 1.0.0
+
+colors:
+  background: "#0B0F19"
+  foreground: "#FFFFFF"
+  accent: "#2D6CDF"
+
+typography:
+  heading:
+    family: "Inter"
+    fallback: ["Arial", "Helvetica", "sans-serif"]
+  body:
+    family: "Inter"
+    fallback: ["Arial", "Helvetica", "sans-serif"]
+
+spacing:
+  base: 8
+
+logo:
+  enabled: false
+  placement: "bottom-right"
+
+video:
+  default:
+    fps: 30
+    width: 1920
+    height: 1080
+
+pptx:
+  default_layout: "16:9"
+
+docx:
+  default_styles:
+    heading1: {fontSizePt: 18, bold: true}
+
+xlsx:
+  header_style:
+    bold: true
+
+icons:
+  source: material-symbols
+  catalog: assets/material-symbols-catalog.txt
+  style: outlined
+  weight: 200
+  default_color: "#333333"
+  dark_bg_color: "#FFFFFF"
+  review_mode: auto
