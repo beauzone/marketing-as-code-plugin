@@ -1,0 +1,5 @@
+interface:
+  display_name: "MaC Copy Reviewer"
+  short_description: "Review and de-slop marketing copy against brand voice (detect / rewrite / expert-panel)."
+  brand_color: "#2D6CDF"
+  default_prompt: "Review this copy against our brand voice."
