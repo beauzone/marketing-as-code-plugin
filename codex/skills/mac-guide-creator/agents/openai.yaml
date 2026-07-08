@@ -1,0 +1,5 @@
+interface:
+  display_name: "MaC Guide Creator"
+  short_description: "Generate a personalized, role-aware Getting Started guide for a new MaC user."
+  brand_color: "#2D6CDF"
+  default_prompt: "Create a getting-started guide for a new MaC user."
