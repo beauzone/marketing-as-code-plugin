@@ -1,0 +1,5 @@
+interface:
+  display_name: "MaC Company Manager"
+  short_description: "Build and distribute company & brand packs via a guided onboarding interview."
+  brand_color: "#2D6CDF"
+  default_prompt: "Onboard our company and build a brand pack."
