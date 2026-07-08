@@ -1,0 +1,39 @@
+{
+  "name": "marketing-as-code",
+  "version": "0.1.5",
+  "description": "Governed, brand-aware marketing skills — GTM strategy, branded content, company packs, copy review, onboarding guides — backed by the Marketing as Code MCP server.",
+  "author": {
+    "name": "Beau Roberts",
+    "url": "https://github.com/beauzone"
+  },
+  "homepage": "https://github.com/beauzone/marketing-as-code",
+  "repository": "https://github.com/beauzone/marketing-as-code",
+  "license": "MIT",
+  "keywords": [
+    "marketing",
+    "gtm",
+    "brand",
+    "content",
+    "governance",
+    "mcp"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Marketing as Code",
+    "shortDescription": "Governed marketing skills + MCP for Codex.",
+    "longDescription": "Brand-aware GTM strategy, branded content creation, company-pack onboarding, copy review, and getting-started guides — backed by the Marketing as Code MCP server.",
+    "developerName": "Beau Roberts",
+    "category": "Marketing",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Define positioning and an ICP for our product.",
+      "Create a branded one-pager from our company pack.",
+      "Review this copy against our brand voice."
+    ],
+    "brandColor": "#2D6CDF"
+  }
+}

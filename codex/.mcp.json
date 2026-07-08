@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "mac-server": {
+      "type": "http",
+      "url": "https://mcp-server-production-131d.up.railway.app/mcp"
+    }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "name": "marketing-as-code",
+  "displayName": "Marketing as Code",
+  "version": "0.1.5",
+  "description": "Governed, brand-aware marketing skills — GTM strategy, branded content creation, company-pack onboarding, copy review, and getting-started guides — backed by the Marketing as Code MCP server.",
+  "author": {
+    "name": "Beau Roberts",
+    "url": "https://github.com/beauzone"
+  },
+  "homepage": "https://github.com/beauzone/marketing-as-code",
+  "repository": "https://github.com/beauzone/marketing-as-code",
+  "license": "MIT",
+  "keywords": [
+    "marketing",
+    "gtm",
+    "brand",
+    "content",
+    "governance",
+    "mcp",
+    "marketing-as-code"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json"
+}
