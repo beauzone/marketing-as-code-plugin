@@ -1,0 +1,5 @@
+interface:
+  display_name: "MaC GTM Strategist"
+  short_description: "B2B & B2C go-to-market strategy, positioning, ICP and persona work."
+  brand_color: "#2D6CDF"
+  default_prompt: "Help me define positioning and an ICP for our product."
