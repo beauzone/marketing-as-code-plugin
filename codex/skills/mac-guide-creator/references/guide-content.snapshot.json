@@ -1,0 +1,436 @@
+{
+  "prose_sections": [
+    {
+      "id": "getting-started",
+      "title": "Getting started",
+      "markdown": "You're connected — nice. You don't need to learn any commands or tool names.\nJust **ask in plain English** and the assistant picks the right MaC tool for you.\n\n**Start with these three:**\n\n1. **See who you are.** Ask: *\"Using MaC, who am I and what can I access?\"* This\n   confirms your sign-in worked and shows your role and the companies you can\n   work with.\n2. **See what you can do.** Ask: *\"What can I do with MaC?\"* — you'll get a list\n   tailored to your role (the `using-tools` topic).\n3. **Pull some real brand context.** Ask: *\"What's our brand voice?\"* or *\"Give\n   me an overview of our company.\"*\n\n**Most common first-time snag:** if you see an empty workspace, you're almost\ncertainly signed in with a different email than the one your MaC access was\nprovisioned under. Sign out and back in with your exact provisioned email. See\nthe `troubleshooting` topic.\n\nWhen you're ready for the full picture, ask for the `workflows` topic to see\nend-to-end examples, or call `get_user_guide` for the complete written guide."
+    },
+    {
+      "id": "what-is-mac",
+      "title": "What is Marketing as Code?",
+      "markdown": "Marketing as Code (MaC) gives your marketing team a single, governed source\nfor everything that defines your brand — who you are, who you sell to, how you\ntalk, what you claim, and the proof behind it — and makes all of that available,\non demand, inside the AI tools you already use to write and create.\n\n**The problem it solves.** AI writing tools are only as good as the context you\ngive them. Without a shared source of truth, every team member pastes in their\nown version of the brand voice, the positioning, the audience — and the output\ndrifts. MaC holds the canonical version of your brand and strategy in one\ngoverned place, so any AI you connect speaks in the same voice and works from\nthe same facts.\n\n**What you get.** Once connected, you can ask your assistant things like\n*\"what's our positioning?\"* or *\"draft this in our brand voice\"* and it pulls the\nreal, approved answer — not a guess. You also get a shared library of\nprofessional marketing frameworks, buyer personas, and document templates to\ndraw on."
+    },
+    {
+      "id": "concepts",
+      "title": "How MaC works (the three ideas)",
+      "markdown": "You don't need to understand engineering to use MaC — just these three\nideas:\n\n- **The company pack & brand pack.** Everything MaC knows about a company lives\n  in a *company pack* — a structured, version-controlled collection of files.\n  Inside it, the *brand pack* holds voice, tone, terminology, and visual\n  identity; other sections hold positioning and messaging, audiences (ICPs and\n  personas), and competitive and market research. Think of it as a living company, brand,\n  strategy, and market intelligence book an AI can read instantly and\n  natively.\n- **The shared marketing library.** Alongside your pack, MaC includes a registry\n  of reusable assets: analytical frameworks, buyer/consumer personas, document\n  templates, and *writer profiles* that fine-tune the voice of generated\n  content. MaC comes with a standard set of writer profiles for the most common\n  types of business writing, but you can and should create custom writer\n  profiles for your company — just tell your assistant you want to build a\n  custom MaC writer profile and it will walk you through it.\n- **The MCP server — the bridge.** MaC reaches your AI tools through an MCP\n  server (Model Context Protocol) — a secure connector. The AI gains a set of\n  *tools* it can call to read your brand and strategy, browse the library, and\n  (depending on your access) save work back. You never call these tools by hand\n  — you just ask in plain English.\n\n## Your access is tied to your identity\n\nYour **role** on each company determines what you can do. The AI can only ever\nsee and do what you're permitted to:\n\n| Role | What it means |\n|---|---|\n| **Viewer** | Read access — view brand, strategy, audiences, and the shared library. |\n| **Editor** | Read **and write** — everything a Viewer can do, plus create/update content and save finished work back to the pack. |\n| **Owner** | Full access — read, create and save content, and view usage analytics for the company. |\n| **Platform Admin** | Full access across companies, plus provisioning and administration. |\n\n**Governance, quietly in the background.** Every piece of content MaC helps\ncreate carries a record of where it came from, and new material can be checked\nagainst your quality rubric. You don't manage any of this — it just keeps your\nwork consistent and traceable."
+    },
+    {
+      "id": "using-tools",
+      "title": "What you can do (your tools)",
+      "markdown": "You don't type tool names — you just ask naturally, and the assistant picks the\nright tool. The list below is **personalized to your role**: it shows only what\n*you* can do right now, grouped by what you're trying to get done. Each item\nincludes a plain-English \"Try asking\" prompt you can use verbatim.\n\n<!-- The role-filtered tool catalog is generated and appended here at call time. -->"
+    },
+    {
+      "id": "workflows",
+      "title": "Example workflows",
+      "markdown": "You describe what you want; MaC supplies the context behind the scenes.\n\n- **Draft an on-brand LinkedIn post** — *\"Using MaC, draft a LinkedIn post\n  announcing our latest release in our brand voice, leading with the value to\n  our buyers.\"* MaC pulls your brand voice and messaging, then drafts in your\n  voice, grounded in real positioning and proof points.\n- **Build a one-pager** — *\"Using MaC, create a one-pager aimed at our primary\n  persona, using our positioning, proof points, and the one-pager template.\"*\n  (Editors can then *\"save this to our pack.\"*)\n- **Check a draft for alignment** — *\"Using MaC, review this draft against our\n  brand voice and messaging, and flag anything off-brand or unsupported.\"*\n- **Onboard a new teammate** — *\"Using MaC, summarize who we are, who we sell to,\n  how we talk, and what we claim.\"*\n\n## Tips for great results\n\n- **Say \"using MaC\" at first.** Until you're used to how your assistant behaves,\n  naming MaC nudges it to pull your context rather than improvise.\n- **Name the audience.** Mentioning a persona (\"for platform engineering leads\")\n  lets MaC tailor tone and substance.\n- **Ask for the source.** Want to verify? Ask *\"which proof points support\n  this?\"* — MaC works from real files, so it can show its basis.\n- **Save what's good** (Editors). When a draft lands, ask MaC to save it back so\n  the brand brain keeps growing.\n- **Trust the guardrails.** If MaC declines to invent a statistic or won't claim\n  a customer it can't verify, that's the governance working in your favor."
+    },
+    {
+      "id": "troubleshooting",
+      "title": "Troubleshooting",
+      "markdown": "| If you see… | Likely cause | What to do |\n|---|---|---|\n| An empty workspace / no access | Signed in with the wrong email | Sign out and sign back in with your exact provisioned email. This is the single most common onboarding mistake. |\n| A sign-in window that won't complete | Pop-up blocked, or session expired | Allow pop-ups for the client, then retry the connection / re-authenticate. |\n| The AI \"doesn't see\" MaC tools | Connector not enabled for that chat | Enable MaC for the conversation (the + / tools menu), or start a new chat. |\n| ChatGPT can't add MaC, or can read but not save | Custom MCP connectors are gated by ChatGPT plan (Developer Mode) | Check OpenAI's current Developer Mode guidance; for write actions, use Claude, Claude Code, Codex, or Cursor. |\n| Tools listed but a call fails | Temporary server or auth hiccup | Try once more; if it persists, re-authenticate, then contact your MaC administrator. |\n\nTo confirm your connection at any time, ask: *\"Using MaC, who am I and what can\nI access?\"* — the assistant should report your name, your role, and the\ncompanies you can access.\n\nFor access changes — adding a teammate, or adjusting roles — contact your MaC\nplatform administrator, who can provision people in moments."
+    },
+    {
+      "id": "glossary",
+      "title": "Glossary",
+      "markdown": "| Term | Meaning |\n|---|---|\n| **MaC (Marketing as Code)** | The system that holds your brand and marketing intelligence in one governed place and serves it to your AI tools. |\n| **Company pack** | The structured collection of files that holds everything MaC knows about a company. |\n| **Brand pack** | The part of the company pack covering voice, tone, terminology, and visual identity. |\n| **MCP server** | The secure bridge your AI client connects to in order to reach MaC. |\n| **Connector / app** | What an AI client calls a configured link to an MCP server like MaC. |\n| **Clerk** | The sign-in service that authenticates you and protects access. |\n| **Owner / Editor / Viewer** | Access levels that determine whether you can read, create, and save content. |\n| **Persona / ICP** | A profile of a target buyer (ICP = Ideal Customer Profile) used to tailor messaging. |\n| **MDR (Marketing Decision Record)** | A durable, written record of a marketing decision and the reasoning behind it. |\n| **BYOC** | \"Bring your own cloud / repo\" — keeping your pack in your own GitHub repository. |\n| **Provenance** | The automatic record of where a piece of content came from. |"
+    }
+  ],
+  "tool_catalog": [
+    {
+      "tool": "get_help",
+      "category": "Getting oriented",
+      "summary": "In-product help and a personalized list of what you can do.",
+      "example_ask": "What is MaC and what can I do here?",
+      "min_role": "viewer"
+    },
+    {
+      "tool": "get_user_guide",
+      "category": "Getting oriented",
+      "summary": "The full Getting Started & User's Guide as Markdown.",
+      "example_ask": "Show me the MaC user guide.",
+      "min_role": "viewer"
+    },
+    {
+      "tool": "get_workspace_manifest",
+      "category": "Getting oriented",
+      "summary": "A one-call overview of your workspace: companies, roles, and capabilities.",
+      "example_ask": "Give me an overview of my workspace.",
+      "min_role": "viewer"
+    },
+    {
+      "tool": "list_my_companies",
+      "category": "Getting oriented",
+      "summary": "List the companies (clients) you have access to and your role.",
+      "example_ask": "Which companies do I have access to?",
+      "min_role": "viewer"
+    },
+    {
+      "tool": "whoami",
+      "category": "Getting oriented",
+      "summary": "Confirm who you are and which companies you can access.",
+      "example_ask": "Who am I and what can I access?",
+      "min_role": "viewer"
+    },
+    {
+      "tool": "approve_pack_change",
+      "category": "Your brand & strategy",
+      "summary": "Approve and merge a pending brand/messaging change — no GitHub needed.",
+      "example_ask": "Approve pending change #42 for Acme.",
+      "min_role": "owner"
+    },
+    {
+      "tool": "get_brand_voice",
+      "category": "Your brand & strategy",
+      "summary": "The brand's tone, personality, and voice guidelines.",
+      "example_ask": "What is Acme's brand voice?",
+      "min_role": "viewer"
+    },
+    {
+      "tool": "get_company_audiences",
+      "category": "Your brand & strategy",
+      "summary": "The company's ICPs and buyer/customer personas.",
+      "example_ask": "Who are Acme's target audiences?",
+      "min_role": "viewer"
+    },
+    {
+      "tool": "get_company_overview",
+      "category": "Your brand & strategy",
+      "summary": "The company's identity, positioning, and high-level profile.",
+      "example_ask": "Give me an overview of Acme's brand.",
+      "min_role": "viewer"
+    },
+    {
+      "tool": "get_company_pack_file",
+      "category": "Your brand & strategy",
+      "summary": "Read one specific file from a company's pack.",
+      "example_ask": "Show me Acme's value-propositions file.",
+      "min_role": "viewer"
+    },
+    {
+      "tool": "get_messaging_framework",
+      "category": "Your brand & strategy",
+      "summary": "Positioning, value propositions, and messaging pillars.",
+      "example_ask": "What are Acme's key messages?",
+      "min_role": "viewer"
+    },
+    {
+      "tool": "get_pack_completeness",
+      "category": "Your brand & strategy",
+      "summary": "How complete the company pack is and what's missing.",
+      "example_ask": "How complete is Acme's company pack?",
+      "min_role": "viewer"
+    },
+    {
+      "tool": "list_company_pack_files",
+      "category": "Your brand & strategy",
+      "summary": "List every source file in a company's governed pack.",
+      "example_ask": "List the files in Acme's pack.",
+      "min_role": "viewer"
+    },
+    {
+      "tool": "list_pending_pack_changes",
+      "category": "Your brand & strategy",
+      "summary": "See brand/messaging changes awaiting review.",
+      "example_ask": "What pack changes are pending review for Acme?",
+      "min_role": "viewer"
+    },
+    {
+      "tool": "reject_pack_change",
+      "category": "Your brand & strategy",
+      "summary": "Reject and discard a pending brand/messaging change.",
+      "example_ask": "Reject pending change #42 for Acme.",
+      "min_role": "owner"
+    },
+    {
+      "tool": "get_framework",
+      "category": "Knowledge library",
+      "summary": "Read a specific framework in full.",
+      "example_ask": "Show me the positioning framework.",
+      "min_role": "viewer"
+    },
+    {
+      "tool": "get_persona",
+      "category": "Knowledge library",
+      "summary": "Read a specific persona in full.",
+      "example_ask": "Show me the CFO persona.",
+      "min_role": "viewer"
+    },
+    {
+      "tool": "get_skill",
+      "category": "Knowledge library",
+      "summary": "Read a specific skill in full.",
+      "example_ask": "Show me the gtm-strategist skill.",
+      "min_role": "viewer"
+    },
+    {
+      "tool": "get_template",
+      "category": "Knowledge library",
+      "summary": "Read a specific template in full.",
+      "example_ask": "Show me the case-study template.",
+      "min_role": "viewer"
+    },
+    {
+      "tool": "get_writer_profile",
+      "category": "Knowledge library",
+      "summary": "Read a specific writer profile in full.",
+      "example_ask": "Show me the technical-writer profile.",
+      "min_role": "viewer"
+    },
+    {
+      "tool": "list_frameworks",
+      "category": "Knowledge library",
+      "summary": "Browse the available analytical/marketing frameworks.",
+      "example_ask": "What frameworks are available?",
+      "min_role": "viewer"
+    },
+    {
+      "tool": "list_personas",
+      "category": "Knowledge library",
+      "summary": "Browse the reusable buyer/operator personas.",
+      "example_ask": "What personas can I use?",
+      "min_role": "viewer"
+    },
+    {
+      "tool": "list_skills",
+      "category": "Knowledge library",
+      "summary": "Browse the governed marketing skills.",
+      "example_ask": "What skills are available?",
+      "min_role": "viewer"
+    },
+    {
+      "tool": "list_templates",
+      "category": "Knowledge library",
+      "summary": "Browse the available content/document templates.",
+      "example_ask": "What templates are available?",
+      "min_role": "viewer"
+    },
+    {
+      "tool": "list_writer_profiles",
+      "category": "Knowledge library",
+      "summary": "Browse the writer-voice profiles you can calibrate to.",
+      "example_ask": "What writer profiles are available?",
+      "min_role": "viewer"
+    },
+    {
+      "tool": "registry_status",
+      "category": "Knowledge library",
+      "summary": "Check the knowledge-library version, counts, and cache health.",
+      "example_ask": "Is the knowledge library up to date?",
+      "min_role": "viewer"
+    },
+    {
+      "tool": "create_company_pack_file",
+      "category": "Creating & saving content",
+      "summary": "Add a new source file to a company's pack.",
+      "example_ask": "Add a new persona to Acme's pack.",
+      "min_role": "editor"
+    },
+    {
+      "tool": "create_mdr",
+      "category": "Creating & saving content",
+      "summary": "Record a Marketing Decision Record capturing options considered.",
+      "example_ask": "Log a decision record for our pricing-page rewrite.",
+      "min_role": "editor"
+    },
+    {
+      "tool": "delete_company_pack_file",
+      "category": "Creating & saving content",
+      "summary": "Remove a file from a company's pack.",
+      "example_ask": "Delete the outdated persona from Acme's pack.",
+      "min_role": "owner"
+    },
+    {
+      "tool": "get_output_config",
+      "category": "Creating & saving content",
+      "summary": "See where a company's generated outputs are routed.",
+      "example_ask": "Where do Acme's outputs get saved?",
+      "min_role": "viewer"
+    },
+    {
+      "tool": "list_outputs",
+      "category": "Creating & saving content",
+      "summary": "List the outputs recorded for a company.",
+      "example_ask": "What outputs have we produced for Acme?",
+      "min_role": "viewer"
+    },
+    {
+      "tool": "log_output",
+      "category": "Creating & saving content",
+      "summary": "Record that an output was produced for a company.",
+      "example_ask": "Log the case study I just produced for Acme.",
+      "min_role": "viewer"
+    },
+    {
+      "tool": "set_output_config",
+      "category": "Creating & saving content",
+      "summary": "Configure where a company's generated outputs are routed.",
+      "example_ask": "Route Acme's outputs to our content repo.",
+      "min_role": "owner"
+    },
+    {
+      "tool": "submit_artifact",
+      "category": "Creating & saving content",
+      "summary": "Save a generated content artifact into the governed repo.",
+      "example_ask": "Save this blog post to Acme's artifacts.",
+      "min_role": "editor"
+    },
+    {
+      "tool": "update_company_pack_file",
+      "category": "Creating & saving content",
+      "summary": "Edit an existing file in a company's pack.",
+      "example_ask": "Update Acme's value propositions.",
+      "min_role": "editor"
+    },
+    {
+      "tool": "get_active_users",
+      "category": "Measuring usage",
+      "summary": "Active-user counts for a company over a period.",
+      "example_ask": "How many active users does Acme have?",
+      "min_role": "owner"
+    },
+    {
+      "tool": "get_company_health",
+      "category": "Measuring usage",
+      "summary": "A company's adoption and pack-health summary.",
+      "example_ask": "How healthy is Acme's marketing system?",
+      "min_role": "owner"
+    },
+    {
+      "tool": "get_tool_popularity",
+      "category": "Measuring usage",
+      "summary": "Which tools a company uses most.",
+      "example_ask": "Which MaC tools does Acme use most?",
+      "min_role": "owner"
+    },
+    {
+      "tool": "get_usage_stats",
+      "category": "Measuring usage",
+      "summary": "Tool-usage statistics for a company over a period.",
+      "example_ask": "How much has Acme used MaC this month?",
+      "min_role": "owner"
+    },
+    {
+      "tool": "list_company_users",
+      "category": "Measuring usage",
+      "summary": "List the users with access to a company and their roles.",
+      "example_ask": "Who has access to Acme?",
+      "min_role": "owner"
+    },
+    {
+      "tool": "create_company",
+      "category": "Administration",
+      "summary": "Create a new company (client) on the platform.",
+      "example_ask": "Create a new company called Acme.",
+      "min_role": "platform_admin"
+    },
+    {
+      "tool": "demote_platform_admin",
+      "category": "Administration",
+      "summary": "Remove a user's platform-admin privileges.",
+      "example_ask": "Remove jane@acme.com's platform-admin access.",
+      "min_role": "platform_admin"
+    },
+    {
+      "tool": "get_platform_stats",
+      "category": "Administration",
+      "summary": "Platform-wide totals across all companies and users.",
+      "example_ask": "Give me platform-wide stats.",
+      "min_role": "platform_admin"
+    },
+    {
+      "tool": "grant_user_role",
+      "category": "Administration",
+      "summary": "Grant a user a role on a company.",
+      "example_ask": "Give jane@acme.com editor on Acme.",
+      "min_role": "platform_admin"
+    },
+    {
+      "tool": "list_all_companies",
+      "category": "Administration",
+      "summary": "List every company on the platform.",
+      "example_ask": "List all companies on the platform.",
+      "min_role": "platform_admin"
+    },
+    {
+      "tool": "list_all_users",
+      "category": "Administration",
+      "summary": "List every user on the platform.",
+      "example_ask": "List all platform users.",
+      "min_role": "platform_admin"
+    },
+    {
+      "tool": "list_companies",
+      "category": "Administration",
+      "summary": "List companies for provisioning/admin purposes.",
+      "example_ask": "List companies for admin.",
+      "min_role": "platform_admin"
+    },
+    {
+      "tool": "list_user_api_keys",
+      "category": "Administration",
+      "summary": "List a user's API keys (metadata only, never secrets).",
+      "example_ask": "What API keys does jane@acme.com have?",
+      "min_role": "platform_admin"
+    },
+    {
+      "tool": "promote_platform_admin",
+      "category": "Administration",
+      "summary": "Grant a user platform-admin privileges.",
+      "example_ask": "Make jane@acme.com a platform admin.",
+      "min_role": "platform_admin"
+    },
+    {
+      "tool": "provision_company",
+      "category": "Administration",
+      "summary": "Provision a company end-to-end in a chosen deployment mode.",
+      "example_ask": "Provision Acme in shared mode.",
+      "min_role": "platform_admin"
+    },
+    {
+      "tool": "revoke_user_api_key",
+      "category": "Administration",
+      "summary": "Revoke a user's API key.",
+      "example_ask": "Revoke jane@acme.com's leaked API key.",
+      "min_role": "platform_admin"
+    },
+    {
+      "tool": "revoke_user_role",
+      "category": "Administration",
+      "summary": "Revoke a user's role on a company.",
+      "example_ask": "Remove jane@acme.com's access to Acme.",
+      "min_role": "platform_admin"
+    }
+  ],
+  "help_version": "1.0.0",
+  "skills": [
+    {
+      "id": "mac-company-manager",
+      "display_name": "Company Manager",
+      "summary": "Creates and updates company packs and brand packs — runs onboarding interviews, crawls company URLs, and ingests brand documents."
+    },
+    {
+      "id": "mac-content-creator",
+      "display_name": "Content Creator",
+      "summary": "Creates, edits, and exports branded marketing documents and media across formats, applying brand voice and messaging from the company pack."
+    },
+    {
+      "id": "mac-copy-reviewer",
+      "display_name": "Copy Reviewer",
+      "summary": "Reviews, audits, and rewrites marketing content against MaC writing quality standards."
+    },
+    {
+      "id": "mac-gtm-strategist",
+      "display_name": "GTM Strategist",
+      "summary": "A structured B2B and B2C go-to-market strategy skill backed by analytical frameworks and buyer/consumer personas."
+    },
+    {
+      "id": "mac-guide-creator",
+      "display_name": "Guide Creator",
+      "summary": "Creates and delivers a personalized MaC Getting Started Guide for a specific user."
+    }
+  ],
+  "skills_note": "This is a small representative sample (the 5 skills bundled in the MaC platform plugin), not the full governed skills registry — enumerating the complete live registry requires a connected MCP session (list_skills), which this offline snapshot cannot query.",
+  "snapshot_captured_at": "2026-07-07",
+  "snapshot_source_version": "mac-mcp-server 0.17.1"
+}
