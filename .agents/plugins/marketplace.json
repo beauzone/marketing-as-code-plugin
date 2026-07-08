@@ -1,0 +1,20 @@
+{
+  "name": "marketing-as-code",
+  "interface": {
+    "displayName": "Marketing as Code"
+  },
+  "plugins": [
+    {
+      "name": "marketing-as-code",
+      "source": {
+        "source": "local",
+        "path": "./codex"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Marketing"
+    }
+  ]
+}

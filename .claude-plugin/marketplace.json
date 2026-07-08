@@ -1,0 +1,27 @@
+{
+  "name": "marketing-as-code",
+  "description": "Marketing as Code — governed, brand-aware marketing skills and MCP for Claude Code.",
+  "owner": {
+    "name": "Beau Roberts"
+  },
+  "plugins": [
+    {
+      "name": "marketing-as-code",
+      "source": "./claude",
+      "description": "GTM strategy, branded content creation, company-pack onboarding, copy review, and getting-started guides — backed by the Marketing as Code MCP server.",
+      "version": "0.1.5",
+      "author": {
+        "name": "Beau Roberts"
+      },
+      "category": "marketing",
+      "tags": [
+        "marketing",
+        "gtm",
+        "brand",
+        "content",
+        "governance",
+        "mcp"
+      ]
+    }
+  ]
+}
