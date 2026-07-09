@@ -54,7 +54,7 @@ const path = require("path");
 const {
   Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell,
   Header, Footer, AlignmentType, LevelFormat,
-  TabStopType, TabStopPosition, TableOfContents, HeadingLevel,
+  TabStopType, TabStopPosition, HeadingLevel,
   BorderStyle, WidthType, ShadingType, VerticalAlign, PageNumber, PageBreak,
 } = require("docx");
 
@@ -80,6 +80,14 @@ cfg.companies.forEach((c, i) => {
   if (!c.role || !(c.role in ROLE_RANK)) fail(`companies[${i}].role must be one of viewer|editor|owner|admin (got '${c.role}').`);
 });
 const URL = cfg.server_url || "https://mcp-server-production-131d.up.railway.app/mcp";
+// Public plugin distribution repo (BEA-172 follow-up). Mirrors just the
+// assembled extensions/plugins/{claude,codex} bundles from the private
+// beauzone/marketing-as-code source repo — no platform internals, no other
+// company data — so any company's users can add it as a marketplace without
+// needing GitHub access to the private repo. See its README for the
+// zip-upload fallback (Releases page) used when someone can't/won't add a
+// marketplace at all.
+const PLUGIN_REPO = cfg.plugin_repo || "beauzone/marketing-as-code-plugin";
 const DATE_LABEL = cfg.date_label || new Date().toLocaleString("en-US", { month: "long", year: "numeric" });
 const EDITION = cfg.edition || "1.0";
 const CONF = cfg.confidential_label || "Confidential — internal use";
@@ -126,9 +134,21 @@ const spacer = () => new Paragraph({ spacing: { after: 60 }, children: [new Text
 
 // Running section counter — every top-level ("1.", "2." …) heading, whether
 // hardcoded or rendered from live content, goes through this so numbering
-// stays sequential regardless of how many live topics come back.
+// stays sequential regardless of how many live topics come back. Each
+// title is also recorded in tocEntries so the Contents page (built further
+// down, once every title is known) can list it — see the Contents section
+// for why this replaced a live TableOfContents field. (Tried wrapping each
+// heading in docx's Bookmark for clickable Contents links first, but that
+// class assigns every instance the same internal numeric id — 1 — so two+
+// bookmarks in one document fail OOXML id-uniqueness validation. Plain
+// static text sidesteps that bug entirely.)
 let sectionCounter = 0;
-const S1 = (title) => { sectionCounter++; return H1(`${sectionCounter}. ${title}`); };
+const tocEntries = [];
+const S1 = (title) => {
+  sectionCounter++;
+  tocEntries.push({ num: sectionCounter, title });
+  return H1(`${sectionCounter}. ${title}`);
+};
 
 const code = (text) => new Table({
   width: { size: 9360, type: WidthType.DXA }, columnWidths: [9360],
@@ -343,15 +363,43 @@ children.push(
   new Paragraph({ children: [new PageBreak()] })
 );
 
-// TOC
-children.push(H1("Contents"));
-children.push(new TableOfContents("Contents", { hyperlink: true, headingStyleRange: "1-2" }));
+// QUICK START — sits between the cover and Contents so advanced users can
+// connect in under a minute without hunting to Section 4 / page 6. Deliberately
+// excluded from S1()/tocEntries (it's a cheat sheet, not a numbered section)
+// and limited to Claude and Codex — the only two clients with a genuine
+// one-step plugin install. ChatGPT and Cursor have no plugin/marketplace
+// system, so a "quick" version of their setup would just restate the full
+// steps — those stay in Section 4 only, which this page points to.
+children.push(H1("Quick Start — Connect in Under a Minute"));
+children.push(P([t("For advanced users on "), b("Claude"), t(" or "), b("Codex"), t(" who just want the commands. For ChatGPT, Cursor, other AI clients, or the full step-by-step walkthrough, skip to "), b("Section 4 — Connecting MaC to Your AI Client"), t(".")]));
+children.push(H2("Claude"));
+children.push(P([b("Claude Code (terminal):")]));
+children.push(code(`/plugin marketplace add ${PLUGIN_REPO}\n/plugin install marketing-as-code@marketing-as-code`));
+children.push(P([b("Claude Desktop, web, or Cowork: "), t("Customize → Plugins → “+” → Add marketplace → Add from a repository → "), t(PLUGIN_REPO, { font: "Consolas", size: 19, color: BLUE }), t(" → Browse plugins → Install “marketing-as-code.”")]));
+children.push(H2("Codex"));
+children.push(P([b("Terminal:")]));
+children.push(code(`codex plugin marketplace add ${PLUGIN_REPO}\ncodex plugin add marketing-as-code@marketing-as-code`));
+children.push(H2("No marketplace access?"));
+children.push(P([t("Download the packaged plugin "), t(".zip", { font: "Consolas", size: 19, color: BLUE }), t(" from "), t(`${PLUGIN_REPO}/releases`, { font: "Consolas", size: 18, color: BLUE }), t(", then in Claude: Customize → Plugins → upload it directly — no GitHub account needed.")]));
+children.push(callout("First-time sign-in", ["A browser window opens for Clerk sign-in the first time you connect. Use your exact provisioned email — see Section 3 if you're not sure that's set up yet."]));
 children.push(new Paragraph({ children: [new PageBreak()] }));
 
-// 1–2: live prose (getting-started, what-is-mac, concepts), then the
-// personalized access table appended after "concepts" — kept hardcoded
-// (BEA-171 guardrail: cover, access table, and connect steps stay personalized).
-renderTopic("getting-started");
+// TOC — reserved here, populated below once every section title is known.
+// A live TableOfContents field is never opened/refreshed in an interactive
+// Word/LibreOffice session in this pipeline, so it has no cached result and
+// renders as a blank "Contents" page in the headless PDF export. A static
+// list of the real section titles (built from tocEntries after all
+// renderTopic()/S1() calls have run) is reliable in both docx and PDF.
+children.push(H1("Contents"));
+const tocPlaceholderIndex = children.length;
+children.push(new Paragraph({ children: [new TextRun("")] })); // replaced further down
+children.push(new Paragraph({ children: [new PageBreak()] }));
+
+// 1–2: live prose (what-is-mac, concepts) — "getting-started" is rendered
+// later, after the Connecting section, since it assumes the reader is
+// already connected. The personalized access table is appended after
+// "concepts" — kept hardcoded (BEA-171 guardrail: cover, access table, and
+// connect steps stay personalized).
 renderTopic("what-is-mac");
 renderTopic("concepts", () => {
   children.push(H2("Your access"));
@@ -381,9 +429,10 @@ children.push(new Paragraph({ children: [new PageBreak()] }));
 children.push(S1("Before You Begin"));
 children.push(P("Setup takes about five minutes. Here is what you need in place first."));
 children.push(H2("Step 1 — Register and sign in with Clerk"));
-children.push(P([t("Access to MaC is secured through a sign-in service called "), b("Clerk"), t(". The first time you connect, you’ll be asked to sign in. Register using your email address exactly:")]));
+children.push(P([t("Access to MaC is secured through a sign-in service called "), b("Clerk"), t(" ("), t("dashboard.clerk.com/sign-up", { font: "Consolas", size: 19, color: BLUE }), t("). The first time you connect, you’ll be asked to sign in. Register using your email address exactly:")]));
 children.push(code(cfg.user_email));
 children.push(P([b("This must be the exact email. "), t("Your MaC access is linked to that address. If you sign in with a different email, the system won’t recognize your access and you’ll see an empty workspace.")]));
+children.push(callout("Already set up for you?", ["Sometimes your MaC administrator pre-provisions your account in Clerk ahead of time. If so, you can skip registering — just sign in and authenticate with Clerk when you connect the MaC plugin or MCP connector."]));
 children.push(H2("Step 2 — Choose an AI client"));
 children.push(P("MaC works with most major AI assistants. You only need one to start, and you can connect more later. The next section covers each of these:"));
 [["Claude", " — web (claude.ai), desktop app, Cowork, and mobile"],
@@ -399,16 +448,35 @@ children.push(code(URL));
 children.push(new Paragraph({ children: [new PageBreak()] }));
 children.push(S1("Connecting MaC to Your AI Client"));
 children.push(P("Find your tool below and follow its steps. Each is a one-time setup. The very first time you connect any client, a browser window opens for you to sign in with Clerk (see Section 3) and approve access — after that, it just works."));
+
+children.push(H2("Fastest path: install the MaC plugin (Claude and Codex)"));
+children.push(P("If you use Claude or Codex, install MaC as a plugin instead of connecting the server by hand. A plugin bundles the MaC skills and this MCP connection into one step — you get both at once, and Claude/Codex users on the desktop or web app never need a terminal."));
+children.push(H3("Option A — Add the marketplace (recommended)"));
+children.push(P([t("Point your client at the public MaC plugin repository: "), t(PLUGIN_REPO, { font: "Consolas", size: 19, color: BLUE }), t(". This repo mirrors just the MaC plugin — skills plus the MCP connection — nothing else from the platform.")]));
+children.push(P([b("Claude Code (terminal):")]));
+children.push(code(`/plugin marketplace add ${PLUGIN_REPO}\n/plugin install marketing-as-code@marketing-as-code`));
+children.push(P([b("Claude Desktop, web, or Cowork (no terminal):")]));
+children.push(numbered("Open the Customize menu in the left sidebar, then the Plugins tab."));
+children.push(numbered([t("In the Personal plugins section, click the "), b("+"), t(" button, then choose Add marketplace.")]));
+children.push(numbered([t("Choose Add from a repository, enter "), t(PLUGIN_REPO, { font: "Consolas", size: 19, color: BLUE }), t(", and click Add, then Done.")]));
+children.push(numbered("Click Browse plugins, find “marketing-as-code,” and click Install."));
+children.push(P([b("Codex (terminal):")]));
+children.push(code(`codex plugin marketplace add ${PLUGIN_REPO}\ncodex plugin add marketing-as-code@marketing-as-code`));
+children.push(spacer());
+children.push(H3("Option B — Upload a plugin file directly"));
+children.push(P([t("No GitHub account, and no marketplace needed: if your MaC admin sent you a packaged plugin "), t(".zip", { font: "Consolas", size: 19, color: BLUE }), t(" file directly (or you grabbed one from the "), t(`${PLUGIN_REPO}/releases`, { font: "Consolas", size: 18, color: BLUE }), t(" page), install it the same way: Customize menu → Plugins tab → upload the file. If no packaged file is listed yet, ask your MaC admin for one.")]));
+children.push(callout("Only for Claude and Codex", ["ChatGPT and Cursor don't have a plugin/marketplace system, so they always connect to MaC the direct way — see their sections below. If you use Claude or Codex but the plugin path doesn't work for you (e.g. it's blocked by an admin policy), the direct connection steps below work too — you'll just set up the skills separately."]));
+
 children.push(H2("Quick reference"));
 children.push(refTable(
-  ["AI Client", "Where you add it", "Sign-in"],
-  [2400, 4360, 2600],
+  ["AI Client", "Where you add it", "Sign-in", "Plugin available?"],
+  [2000, 3760, 2000, 1600],
   [
-    ["Claude (web/desktop)", "Settings › Connectors › Add custom connector", "Clerk pop-up (OAuth)"],
-    ["Claude Code", "claude mcp add (terminal command)", "/mcp → Clerk"],
-    ["ChatGPT", "Settings › Apps › Developer mode → create", "Clerk pop-up (OAuth)"],
-    ["Codex", "codex mcp add (terminal command)", "codex mcp login"],
-    ["Cursor", "Settings › Tools & MCP → add server", "Clerk pop-up (OAuth)"],
+    ["Claude (web/desktop)", "Customize › Plugins, or Settings › Connectors", "Clerk pop-up (OAuth)", "Yes"],
+    ["Claude Code", "/plugin marketplace add, or claude mcp add", "/mcp → Clerk", "Yes"],
+    ["ChatGPT", "Settings › Apps › Developer mode → create", "Clerk pop-up (OAuth)", "No — direct only"],
+    ["Codex", "codex plugin marketplace add, or codex mcp add", "codex mcp login", "Yes"],
+    ["Cursor", "Settings › Tools & MCP → add server", "Clerk pop-up (OAuth)", "No — direct only"],
   ]
 ));
 children.push(spacer());
@@ -417,6 +485,7 @@ if (can("editor")) {
 }
 
 children.push(H2("Claude (web, desktop, Cowork, mobile)"));
+children.push(P([t("Recommended: use the plugin install above — it sets up the skills and this connection together. The steps below connect MaC as a plain MCP connector only (no bundled skills); use them if you want that instead, or if the plugin path above doesn't work for you.")]));
 [ "Open Claude and go to Settings. (On the web, click your profile, then Settings; in the desktop app, the same Settings menu.)",
   "Select Connectors in the sidebar.",
   "Scroll down and click Add custom connector." ].forEach((s) => children.push(numbered(s)));
@@ -427,6 +496,7 @@ children.push(numbered([t("To use it in a chat, click the "), b("+"), t(" button
 children.push(callout("Note", ["Connecting works the same on the Claude desktop app, Cowork, and the mobile apps, because the connection is brokered through your Claude account rather than your device."]));
 
 children.push(H2("Claude Code"));
+children.push(P([t("Recommended: use the plugin install above ("), t("/plugin marketplace add", { font: "Consolas", size: 18, color: BLUE }), t(") — it's one command and sets up the skills too. The steps below add MaC as a plain MCP connector only.")]));
 children.push(P("Claude Code is a terminal tool. Add MaC with a single command:"));
 children.push(code("claude mcp add --transport http mac " + URL));
 children.push(P([t("Then, inside Claude Code, run "), b("/mcp"), t(" and choose to authenticate. Your browser opens for the Clerk sign-in. After that, the tools are available in every session.")]));
@@ -445,6 +515,7 @@ children.push(numbered("In a chat, enable MaC from the Developer Mode / tools me
 children.push(callout("Plan note", ["Custom MCP connectors in ChatGPT live behind Developer Mode and require a paid plan. OpenAI controls which plans can create custom MCP connectors and whether they are read-only or can also write, and this has changed over time, so confirm against OpenAI's current guidance before relying on it: https://help.openai.com/en/articles/12584461-developer-mode-and-mcp-apps-in-chatgpt . If your plan can't add custom MCP connectors (or only read-only) and you need to save content back, use Claude, Claude Code, Codex, or Cursor instead."], "FFF6E6", "E0A300"));
 
 children.push(H2("Codex (command line)"));
+children.push(P([t("Recommended: use the plugin install above ("), t("codex plugin marketplace add", { font: "Consolas", size: 18, color: BLUE }), t(") — it sets up the skills too. The steps below add MaC as a plain MCP connector only.")]));
 children.push(P("OpenAI’s Codex CLI stores its settings in a config file, but you can add MaC with one command:"));
 children.push(code("codex mcp add mac --url " + URL));
 children.push(P("Then sign in:"));
@@ -466,6 +537,12 @@ children.push(H2("Confirm you’re connected"));
 children.push(P("Whatever client you used, run this quick check. In a new chat, ask:"));
 children.push(code("Using MaC, who am I and what can I access?"));
 children.push(P([t("The assistant should report that you are "), b(cfg.user_name), t(" with "), b(ROLE_LABEL[primary.role] + " access"), t(" to "), t(primary.slug, { font: "Consolas", size: 19, color: BLUE }), t(multi ? " (and your other companies)." : "."), t(" For a fuller picture, ask it to “get my MaC workspace manifest.”")]));
+
+// GETTING STARTED — moved here (after Connecting) since this topic assumes
+// the reader is already connected ("You're connected — nice"); it made no
+// sense as the very first section before Section 4 explains how to connect.
+children.push(new Paragraph({ children: [new PageBreak()] }));
+renderTopic("getting-started");
 
 // 5 TOOLBOX — live tool_catalog + skills (BEA-171: no more hardcoded tables).
 children.push(new Paragraph({ children: [new PageBreak()] }));
@@ -536,6 +613,15 @@ children.push(P([b("Your server address (keep this handy): ")]));
 children.push(code(URL));
 children.push(spacer());
 children.push(P([t("Welcome aboard. Once MaC is connected, your brand travels with you into every tool you write and create content in — consistent, accurate, and always up to date.", { italics: true, color: GREY })]));
+
+// Populate the Contents placeholder now that every section title is known.
+// Plain styled text, not a live field or hyperlink — see the note by
+// tocEntries above for why.
+const tocParagraphs = tocEntries.map((entry) => new Paragraph({
+  spacing: { after: 120, line: 268 },
+  children: [new TextRun({ text: `${entry.num}. ${entry.title}`, color: BLUE, size: 24 })],
+}));
+children.splice(tocPlaceholderIndex, 1, ...tocParagraphs);
 
 // prevent adjacent tables merging
 const spaced = [];
