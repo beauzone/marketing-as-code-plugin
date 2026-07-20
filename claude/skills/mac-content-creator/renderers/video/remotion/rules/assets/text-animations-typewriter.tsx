@@ -53,7 +53,7 @@ const Cursor: React.FC<{
 	frame: number;
 	blinkFrames: number;
 	symbol?: string;
-}> = ({frame, blinkFrames, symbol = '▌'}) => {
+}> = ({frame, blinkFrames, symbol = '\u258C'}) => {
 	const opacity = interpolate(
 		frame % blinkFrames,
 		[0, blinkFrames / 2, blinkFrames],

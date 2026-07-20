@@ -113,33 +113,39 @@ CAE, Internal AI Auditor, Big 4 Assurance Partner, ISO 42001 Lead Auditor, AI Et
 
 ---
 
-## B2C Operator Personas (17 personas, family: b2c_ops)
+## B2C Marketer Personas (23 personas, family: marketing_b2c)
 
 Use when producing STRATEGY docs, briefs for a specific function, or stakeholder presentations for a B2C marketing role.
 
 | Display Name | Persona ID | Best For |
 |---|---|---|
-| CMO / VP Marketing | ops-cmo-vp-marketing | Board/exec presentations, brand strategy, budget allocation |
-| Head of Brand | ops-head-of-brand | Brand guidelines, campaign briefs, agency management |
-| Head of Growth | ops-head-of-growth | Growth models, channel strategy, acquisition OKRs |
-| CRM / Email / SMS Manager | ops-crm-email-sms-manager | Lifecycle campaigns, retention flows, subscriber segmentation |
+| CMO / VP Marketing | marketing-b2c-cmo | Board/exec presentations, brand strategy, budget allocation |
+| Head of Brand | marketing-b2c-vp-brand | Brand guidelines, campaign briefs, agency management |
+| Head of Growth | marketing-b2c-vp-growth | Growth models, channel strategy, acquisition OKRs |
+| CRM / Email / SMS Manager | marketing-b2c-email-crm-manager | Lifecycle campaigns, retention flows, subscriber segmentation |
 | Consumer Analytics Manager | ops-consumer-analytics-manager | Attribution, cohort analysis, data strategy |
 | Consumer Product Manager | ops-consumer-product-manager | Product roadmap, activation, feature-to-benefit messaging |
 | Paid Media Manager | ops-paid-media-manager | Paid channel strategy, bid strategy, creative testing |
 | Influencer & Creator Manager | ops-influencer-creator-manager | Creator briefs, UGC strategy, influencer program design |
 | Head of Performance Marketing | ops-head-of-performance | Performance reporting, ROAS, incrementality testing |
-| Social & Community Manager | ops-social-community-manager | Social content strategy, community building, platform voice |
+| Social & Community Manager | marketing-b2c-social-media-manager | Social content strategy, community building, platform voice |
 | Partnerships & Affiliate Manager | ops-partnerships-affiliate-manager | Affiliate program design, partnership briefs |
 | Retail & Omnichannel Manager | ops-retail-omnichannel-manager | Retail execution, category management, shopper marketing |
 | SEO & Content Manager | ops-seo-content-manager | Content strategy, organic acquisition, editorial planning |
-| Head of Loyalty | ops-head-of-loyalty | Loyalty program design, retention economics, VIP tiers |
+| Head of Loyalty | marketing-b2c-dir-lifecycle | Loyalty program design, retention economics, VIP tiers |
 | Mobile App Growth Manager | ops-mobile-app-growth-manager | App store optimization, push notification strategy, in-app flows |
 | Marketplace Operator | ops-marketplace-operator | Marketplace strategy, Amazon operations, platform economics |
 | PR & Comms Manager | ops-pr-comms-manager | Brand communications, PR strategy, crisis communications |
+| Director of Consumer Insights | marketing-b2c-dir-consumer-insights | Consumer research, segmentation studies, voice-of-customer |
+| Director of DTC Marketing | marketing-b2c-dir-dtc | DTC channel strategy, site merchandising, subscription economics |
+| Director of Influencer & Creator Partnerships | marketing-b2c-dir-influencer | Creator partnership strategy, talent selection, program scaling |
+| Director of Social Media & Community | marketing-b2c-dir-social-community | Social strategy at director level, community program design |
+| Growth Marketing Manager | marketing-b2c-growth-manager | Growth experiments, funnel optimization, channel testing |
+| VP Consumer Marketing | marketing-b2c-vp-consumer-marketing | Consumer marketing org leadership, integrated campaign planning |
 
 ---
 
-## Consumer Archetypes (13 personas, family: b2c_consumer)
+## Consumer Archetypes (13 personas, family: consumer)
 
 Use when producing CONSUMER-FACING content — campaign briefs, creative direction, messaging, retention programs.
 

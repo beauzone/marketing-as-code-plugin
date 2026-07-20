@@ -1,6 +1,6 @@
 ---
 name: mac-gtm-strategist
-version: 2.3.0
+version: 2.4.0
 description: >
   A structured B2B and B2C marketing and go-to-market strategy skill backed by
   analytical frameworks, SME buyer personas, B2C operator personas, consumer
@@ -16,8 +16,8 @@ description: >
 ---
 
 <!--
-SKILL_VERSION: 2.3.0
-SKILL_UPDATED: 2026-07-08
+SKILL_VERSION: 2.4.0
+SKILL_UPDATED: 2026-07-18
 -->
 
 # MaC GTM Strategist
@@ -174,8 +174,10 @@ CACHE_TTL       : 24 hours
    - `personas.governance_legal` — Governance and Legal buyer personas
    - `personas.regulated_industries` — Regulated industry buyer personas
    - `personas.governance_audit` — Governance and Audit buyer personas
-   - `personas.b2c_ops` — B2C operator role personas
-   - `personas.b2c_consumer` — B2C consumer archetype personas
+   - `personas.consumer` — consumer/buyer archetype personas (BEA-232; formerly
+     the `personas.b2c_consumer` family. The B2C *marketer* roles that used to
+     live in `personas.b2c_ops` were consolidated into `personas.marketing_b2c`
+     above, so that one family now covers all B2C practitioner personas.)
    - `templates.system` — document templates
    - `writer_profiles_system` — system-level archetype and use-case profiles
    - `rubrics` — structured scoring rubrics for output evaluation
@@ -368,16 +370,16 @@ role — CISO, CTO, CFO, IT Director, Compliance Officer, etc.
 Families: `b2b_tech`, `anti_fraud`, `governance_legal`, `regulated_industries`,
 `governance_audit`, `marketing_b2b`, `marketing_agency`
 
-**B2C Operator Persona:** Strategy work for a specific B2C marketing function —
+**B2C Marketer Persona:** Strategy work for a specific B2C marketing function —
 CMO/VP presentations, Head of Growth analysis, CRM strategy, influencer program
 design, performance marketing briefs.
-Family: `b2c_ops`
+Family: `marketing_b2c`
 
 **Consumer Archetype:** Creating or reviewing consumer-facing content — creative
 briefs, campaign concepts, messaging, product copy, retention programs, email flows.
-Family: `b2c_consumer`
+Family: `consumer`
 
-**Both B2C types:** Complex deliverables that need both operator alignment and
+**Both B2C types:** Complex deliverables that need both marketer alignment and
 consumer empathy. Example: a retention strategy brief for the CRM team that also
 defines the consumer messaging.
 
@@ -386,8 +388,8 @@ defines the consumer messaging.
 | Business Model | Persona Type | Auto-select from |
 |---|---|---|
 | B2B SaaS / Enterprise | B2B Buyer | `b2b_tech`, `anti_fraud`, `governance_*` |
-| B2C DTC / Consumer App / Subscription | B2C Operator + Consumer Archetype | `b2c_ops` + `b2c_consumer` |
-| Marketplace / Platform | B2C Operator; B2B Buyer if enterprise side | context-dependent |
+| B2C DTC / Consumer App / Subscription | B2C Marketer + Consumer Archetype | `marketing_b2c` + `consumer` |
+| Marketplace / Platform | B2C Marketer; B2B Buyer if enterprise side | context-dependent |
 | Hybrid (PLG + enterprise) | May combine B2B Buyer + Consumer Archetype | task-specific |
 
 ### Selection flow — always follow this sequence
@@ -1035,8 +1037,7 @@ When the user issues `sync`:
    - `personas.governance_legal.files[]`
    - `personas.regulated_industries.files[]`
    - `personas.governance_audit.files[]`
-   - `personas.b2c_ops.files[]`
-   - `personas.b2c_consumer.files[]`
+   - `personas.consumer.files[]`
    - `templates.system[]`
    - `writer_profiles_system.archetypes[]`
    - `writer_profiles_system.use_cases[]`
@@ -1119,14 +1120,14 @@ assets:
     updated_at: "2026-04-22"
     cached_at: "2026-04-23T10:00:00Z"
   - id: archetype-gen-z-digital-native
-    path: personas/b2c_consumer/archetype-gen-z-digital-native.yaml
-    family: personas.b2c_consumer
+    path: personas/consumer/archetype-gen-z-digital-native.yaml
+    family: personas.consumer
     version: "1.0.0"
     updated_at: "2026-04-23"
     cached_at: "2026-04-23T10:00:00Z"
-  - id: ops-head-of-growth
-    path: personas/b2c_ops/ops-head-of-growth.yaml
-    family: personas.b2c_ops
+  - id: marketing-b2c-vp-growth
+    path: personas/marketing-b2c/marketing-b2c-vp-growth.yaml
+    family: personas.marketing_b2c
     version: "1.0.0"
     updated_at: "2026-04-23"
     cached_at: "2026-04-23T10:00:00Z"

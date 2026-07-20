@@ -1,6 +1,6 @@
 ---
 name: mac-company-manager
-version: 2.1.0
+version: 2.2.0
 description: >
   Creates, updates, and distributes company packs and brand packs for the
   Marketing as Code ecosystem. Runs a comprehensive onboarding interview,
@@ -10,11 +10,14 @@ description: >
   auto-compiles scoring rubric instances from pack source files. Phase 6 v1.2.0
   (Cycle Prompt C) adds classification metadata prompts in Phases 4/5,
   pack contract v1.1 classification validation, and add-classifications backfill.
+  v2.2.0 adds the MaC server write path: packs persist via the server's
+  create/update_company_pack_file tools, which is the only durable store in
+  sandboxed venues (claude.ai chat / Cowork) with no local ~/.claude disk.
 ---
 
 <!--
-SKILL_VERSION: 2.1.0
-SKILL_UPDATED: 2026-07-08
+SKILL_VERSION: 2.2.0
+SKILL_UPDATED: 2026-07-19
 -->
 
 # MaC Company Manager
@@ -28,6 +31,12 @@ Company packs live at `~/.claude/mac/companies/{company-id}/` and are consumed
 by the GTM Strategist and MaC Content Creator without conversion. Every file
 you produce is schema-compliant YAML that can be imported directly into a MaC
 repository at `sources/` with zero modification.
+
+When a MaC MCP server is connected, the server-side company pack is a second —
+and in sandboxed venues, the *only* — durable home for pack files. §0 Step 1
+defines how to detect the server, pick the persistence target for the session,
+and use the server write tools. Never let a session end with pack content
+sitting only in a temporary sandbox directory.
 
 ---
 
@@ -51,23 +60,88 @@ fetched `mac-registry`, now a **private** repo, so unauthenticated
 `raw.githubusercontent.com` requests 404 and the check never actually fired; it
 was removed in favor of the native install-channel update paths above.)
 
-### Step 1 — MaC MCP Detection
+### Step 1 — MaC MCP Detection & Persistence Target
 
-Check whether a Marketing as Code MCP server is connected. Look for tools
-matching: `brand_voice`, `audience_personas`, `list_brands`, `messaging_framework`.
-Alternatively, read `~/.claude/settings.json` for any MCP server referencing
-`marketing-as-code` or `mac`.
+Check whether a Marketing as Code MCP server (`mac-server`) is connected. The
+server's actual tool names are:
 
-- **If found:**
+- **Read:** `whoami`, `list_my_companies`, `get_workspace_manifest`,
+  `list_company_pack_files`, `get_company_pack_file`, `get_company_overview`,
+  `get_brand_voice`, `get_messaging_framework`, `get_company_audiences`,
+  `get_pack_completeness`, `list_pending_pack_changes`
+- **Write:** `create_company_pack_file`, `update_company_pack_file`,
+  `delete_company_pack_file`, `submit_artifact`, `create_mdr`
+
+In clients that defer MCP tools behind a tool-search index, generic queries
+("write", "submit") may not surface these — **search by exact tool name**
+before concluding a capability is missing. Do not report the server as
+read-only unless a search for `create_company_pack_file` by name comes back
+empty. In Claude Code you can alternatively read `~/.claude/settings.json`
+for any MCP server referencing `marketing-as-code` or `mac`.
+
+Then pick the **persistence target** for the session:
+
+- **Local disk available** (Claude Code on the user's machine):
+  `~/.claude/mac/companies/{company-id}/` is the canonical pack location.
+  If the server is also connected, offer to mirror files there as you go.
   > "I can see a Marketing as Code MCP server is connected — I'll note that
   > any company pack changes you make here can also be pushed to your MaC
-  > repository."
+  > server pack."
+- **Sandboxed venue** (claude.ai chat / Cowork — working directory like
+  `/mnt/user-data/...`, no persistent `~/.claude`): the sandbox is wiped
+  between sessions. **The MaC server is the only durable store.** Persist
+  every finished pack file with the server write tools at the end of each
+  phase — do not accumulate files in the sandbox and treat them as saved.
+  If no server is connected either, warn the user up front that files must
+  be downloaded before the session ends.
+
+**Server write tool contract** (all take `company_slug` + `file_path`/
+`artifact_path` + `content`, optional `commit_message`). `file_path` is
+**relative to the company pack root** — the server resolves it under
+`company-packs/{slug}/` itself. Pass `brand/voice.yaml` or
+`research/stat-bank.yaml`, never `company-packs/{slug}/...` or `sources/...`
+(a prefixed path would be created as a nested subdirectory inside the pack
+and `get_pack_completeness` would still report the expected file missing):
+
+- `create_company_pack_file` — new file; errors with `file_exists` if present.
+- `update_company_pack_file` — existing file; errors with `file_not_found`.
+- `submit_artifact` — generated artifacts; path is placed under `artifacts/`,
+  `_source_meta` provenance is injected; supports `derived_from`.
+- `delete_company_pack_file` — owner / Platform Admin only.
+
+RBAC: create/update/submit require owner or editor role. Tier 1/2 paths
+(`brand/`, `messaging/`) from an **editor** open a review PR for the owner's
+approval queue; an **owner** or Platform Admin commits them straight to main.
+A `{"error": ...}` result means the write did not land — surface it, never
+report an errored write as saved.
+
+**Verifying writes:** for owner/Platform-Admin sessions (direct commits),
+verify a batch of writes with `get_pack_completeness`. For **editor** writes
+to Tier 1/2 paths, the file lands in a review PR, not on main —
+`get_pack_completeness` reads the committed pack and will *not* reflect it
+yet. Verify those from the write result (PR reference) and
+`list_pending_pack_changes`; a pending review is a successful save awaiting
+approval, not a failure.
+
+**Path mapping (server target):** when the persistence target is the server,
+every instruction elsewhere in this skill that writes under
+`~/.claude/mac/companies/{company-id}/{path}` means: write the same
+`{path}` to the server pack via the write tools, and report the server pack
+(not a local directory) as the pack location.
 
 ### Step 2 — Installed Company Pack Detection
 
-Scan `~/.claude/mac/companies/` for installed packs. For each subdirectory,
-read `pack.yaml` to get: company name, version, updated_at, brand count,
-asset counts.
+If the persistence target is the **server** (Step 1), detect packs
+server-side, not on disk: call `list_my_companies` for the companies the
+user can access, then `get_pack_completeness` / `list_company_pack_files`
+for each to report pack state. A user with an existing server-side pack has
+an installed pack even though `~/.claude/mac/companies/` is empty —
+`update company {id}` must load and extend that server pack, never start a
+duplicate from scratch.
+
+If the persistence target is **local disk**, scan `~/.claude/mac/companies/`
+for installed packs. For each subdirectory, read `pack.yaml` to get: company
+name, version, updated_at, brand count, asset counts.
 
 - **If packs exist:** report them:
   > "Installed company packs:
@@ -165,7 +239,9 @@ CACHE_TTL       : 24 hours
 
 Triggered by `create company`. This is an admin-focused, thorough onboarding
 interview that can be interrupted and resumed at any phase. After each phase,
-write files to disk and announce what was created.
+write files to the session's persistence target (§0 Step 1 — local disk in
+Claude Code, the MaC server write tools in sandboxed venues) and announce
+what was created.
 
 ### Phase 1 — Company Identity
 
@@ -193,7 +269,10 @@ write files to disk and announce what was created.
 3. **Derive company-id:** lowercase, hyphenated slug from display name.
    Confirm with user before creating directories.
 
-4. **Create directory structure:**
+4. **Create directory structure** (local-disk target; with the **server**
+   target there is nothing to pre-create — the same tree comes into being
+   pack-relative as each file is written via `create_company_pack_file`,
+   per the §0 Step 1 path-mapping rule):
    ```
    ~/.claude/mac/companies/{company-id}/
    ├── brands/
@@ -607,6 +686,11 @@ If yes: for each writer:
    > Pack ID: {company-id} | Version: 1.0.0
    > Location: ~/.claude/mac/companies/{company-id}/"
 
+   With the **server** persistence target, report the server pack instead
+   (confirm against `get_pack_completeness` / `list_pending_pack_changes`
+   first — only report files the server actually holds):
+   > Location: MaC server pack `{company-id}` (committed[, +N pending review])
+
 4. **Offer export:**
    > "Would you like to export this pack as a .zip for sharing with teammates?"
 
@@ -718,10 +802,14 @@ with `accepted: false` — unless the user explicitly runs with `--force-reoffer
 
 ### MaC MCP note
 
-If a MaC MCP server is detected (§0 Step 1), add a note after any update:
-> "Note: These changes are in your local company pack. If you want them reflected
-> in your MaC repository, push the relevant YAML files to `sources/brand/` or
-> `sources/audiences/`."
+If a MaC MCP server is detected (§0 Step 1) and the session's persistence
+target is local disk, offer to mirror any updated file to the server pack via
+`update_company_pack_file` (or `create_company_pack_file` for new files):
+> "Note: These changes are in your local company pack. Want me to push them to
+> your MaC server pack as well?"
+
+If the persistence target is the server (sandboxed venue), the update was
+already written there — no extra note needed.
 
 ---
 
