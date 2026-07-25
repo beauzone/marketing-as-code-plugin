@@ -1,6 +1,6 @@
 ---
 name: mac-gtm-strategist
-version: 2.4.0
+version: 2.5.0
 description: >
   A structured B2B and B2C marketing and go-to-market strategy skill backed by
   analytical frameworks, SME buyer personas, B2C operator personas, consumer
@@ -16,8 +16,8 @@ description: >
 ---
 
 <!--
-SKILL_VERSION: 2.4.0
-SKILL_UPDATED: 2026-07-18
+SKILL_VERSION: 2.5.0
+SKILL_UPDATED: 2026-07-25
 -->
 
 # MaC GTM Strategist
@@ -236,6 +236,53 @@ List all installed packs at startup (Step 2) and let the user select one per ses
 **Storage scope precedence:** `company > user > system`
 - `system` — mac-registry assets (remote, read-only, auto-cached)
 - `approved` — user-created or customized artifacts (company or user directories)
+
+### Messaging consumption assets (pack contract v1.8 §2.15–§2.18)
+
+When a full MaC pack is loaded, four optional files under
+`brands/{brand}/messaging/` inform GTM strategy directly. All four are optional —
+absence is normal and never blocks work.
+
+**`objection-handling.yaml`** — the approved rebuttals, categorized. Use it in win/loss
+analysis, sales-motion design, and battlecard work. Read the `category` distribution
+before proposing fixes: it tells you *where* deals stall, and different categories imply
+different remedies.
+
+| Dominant category | What it usually indicates |
+|---|---|
+| `price_budget` | A value-articulation or packaging problem, not a discounting problem |
+| `product_capability` | A roadmap or positioning-scope problem |
+| `need_value` | The category itself is not established for this buyer |
+| `timing_priority` | Weak urgency — a "why now" gap in the narrative |
+| `authority_process` | Missing procurement/security enablement, not messaging |
+| `competitor_alternative` | A differentiation problem; check competitive-positioning |
+| `status_quo` | Cost-of-inaction is not quantified anywhere |
+| `trust_risk` | A proof and reference gap |
+| `other` | Last-resort value — a cluster of it means the taxonomy does not fit this business |
+
+`underlying_concern` is often more diagnostic than the stated objection — read it.
+Resolution: an objection applies to product X when `product_ids` **contains X OR is
+absent/empty** (empty means "general", never "none").
+
+**`buying-committee-messages.yaml`** — the per-role message map across five archetypes:
+`champion`, `economic_buyer`, `technical_evaluator`, `end_user`, `approver_blocker`.
+Use it when designing the sales motion, sequencing multi-threaded outreach, and checking
+message coverage: a committee role with no entry is an unaddressed stakeholder, which is
+a common cause of late-stage stalls.
+
+> **Do not conflate this with the ICP `buying_committee` block.** That block models
+> account *structure* (which persona fills which slot); this file models *messaging*
+> (which archetype hears what). ICP `influencers` maps to **two** roles here
+> (`technical_evaluator` and `end_user`), and `end_user` has no ICP counterpart at all —
+> so its absence from an ICP says nothing about its relevance, particularly in
+> product-led motions. Full crosswalk: pack-contract.md §2.17 and mdr-0097.
+
+**`copy-blocks.yaml`** and **`faqs.yaml`** are primarily content-production assets
+(`mac-content-creator` owns them), but two signals are strategically useful: a thin or
+missing copy-block set means messaging consistency is unmanaged, and the FAQ `category`
+distribution shows what the market keeps failing to understand about the offering.
+For FAQs, note that `visibility` defaults to `internal` when unset — never treat an
+unmarked FAQ as publishable.
 
 ---
 

@@ -1,12 +1,12 @@
 ---
 name: mac-content-creator
-version: 2.2.0
+version: 2.3.0
 description: "create, edit, and export branded marketing documents and media across formats (pptx, docx, xlsx, pdf, markdown, text, rtf, and remotion video). reads company/brand context from the shared MaC company pack path or MCP server. writes copy AND assembles finished documents in a single pass — datasheets, case studies, one-pagers, blog posts, email copy, social content, branded presentations, and videos. applies brand voice, terminology, messaging pillars, proof points, and visual identity from the company pack. supports writer profile voice calibration. auto-synced from mac-registry."
 ---
 
 <!--
-SKILL_VERSION: 2.2.0
-SKILL_UPDATED: 2026-07-08
+SKILL_VERSION: 2.3.0
+SKILL_UPDATED: 2026-07-25
 -->
 
 # MaC Content Creator
@@ -183,7 +183,11 @@ When a company pack at the shared path contains the full MaC schema structure, l
 │       ├── value-propositions.yaml
 │       ├── proof-points.yaml
 │       ├── messaging-pillars.yaml
-│       └── competitive-positioning.yaml
+│       ├── competitive-positioning.yaml
+│       ├── objection-handling.yaml         # optional — rep-facing rebuttals
+│       ├── copy-blocks.yaml                # optional — reusable approved copy
+│       ├── buying-committee-messages.yaml  # optional — per-role messages
+│       └── faqs.yaml                       # optional — canonical Q&A
 ├── audiences/
 │   ├── icps/                        # Ideal customer profiles
 │   └── personas/                    # Buyer/user personas
@@ -192,10 +196,64 @@ When a company pack at the shared path contains the full MaC schema structure, l
 
 Load all files relevant to the current task. For copy generation, prioritize:
 voice.yaml, tone-guidelines.yaml, terminology.yaml, messaging-pillars.yaml,
-value-propositions.yaml, proof-points.yaml.
+value-propositions.yaml, proof-points.yaml, copy-blocks.yaml.
 
 For document assembly, prioritize:
 visual-identity.yaml (extract colors, fonts, logo paths for rendering config).
+
+The four messaging files above marked *optional* are absent from many packs. Their
+absence is normal — never treat it as an error or block generation on it.
+
+### Copy blocks — reuse before you write
+
+When `copy-blocks.yaml` is present, check it **before** writing any headline,
+description, or boilerplate. If a block covers what you are about to write, use it
+rather than composing a new variant. `length_tier` tells you what the block is sized
+for: `headline_5_7`, `desc_25`, `desc_50`, `desc_75`, `desc_100`, `desc_150`,
+`boilerplate_pr`.
+
+`reuse_rule` governs how much you may change:
+
+| `reuse_rule` | What you may do |
+|---|---|
+| `use_exactly` | **Reproduce the text verbatim, character for character.** No synonyms, no reordering, no tightening — even an improvement is drift, because the block exists so every surface says the same words. |
+| `prefer_exact_no_synonyms` | Restructure the copy *around* the block, but do not substitute words *within* it. |
+| `adapt_preserve_terms_and_claims` | Rewrite freely, but every governed term and every substantiated claim (numbers, percentages, currency) must survive intact. |
+
+If a `use_exactly` block does not fit the space, say so and ask — do not quietly trim it.
+Fidelity is checked by `scripts/copy_block_fidelity.py`, which flags an altered reuse of
+a `use_exactly` block as drift.
+
+### Objections — serve by product
+
+When `objection-handling.yaml` is present and the deliverable is sales-facing
+(battlecards, one-pagers, enablement, email handling a known concern), pull the approved
+`response` rather than inventing one.
+
+Resolution rule: an objection applies to product X when its `product_ids` **contains X
+OR is absent/empty**. An empty list means "general — applies to all products", never
+"applies to none". When asked for "objections for product X", return the union of
+X-specific and general entries.
+
+Objection responses are **rep-facing**. Do not place them in customer-facing web copy;
+use FAQs for that.
+
+### FAQs — assemble sections and RFP answers
+
+When `faqs.yaml` is present, use it as the source for FAQ sections, help-center content,
+chatbot answers, and RFP responses. Reuse `question` and `answer` as written — they are
+the approved phrasing — and group by `category` when laying out a section.
+
+**Publication gate.** `visibility` is optional and resolves to `internal` when unset.
+Only entries with an explicit `visibility: public` may appear in anything customer-facing
+or published. Treat an entry with **no** `visibility` field exactly as `internal`: never
+reason that an unmarked FAQ is "probably fine to publish". `surfaces` is a routing hint
+and never widens visibility — an `internal` FAQ listing `website_footer` still may not be
+published.
+
+`product_ids` resolves the same way as objections. `related_objection_ids` points to the
+rep-facing rebuttal for the same underlying resistance — useful when assembling
+enablement material that needs both.
 
 ### Legacy brand-pack.yaml (backward compatible)
 

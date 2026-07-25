@@ -1,6 +1,6 @@
 ---
 name: mac-company-manager
-version: 2.2.0
+version: 2.3.0
 description: >
   Creates, updates, and distributes company packs and brand packs for the
   Marketing as Code ecosystem. Runs a comprehensive onboarding interview,
@@ -16,8 +16,8 @@ description: >
 ---
 
 <!--
-SKILL_VERSION: 2.2.0
-SKILL_UPDATED: 2026-07-19
+SKILL_VERSION: 2.3.0
+SKILL_UPDATED: 2026-07-25
 -->
 
 # MaC Company Manager
@@ -373,6 +373,133 @@ what was created.
    
    Generate `competitive-positioning.yaml`.
 
+5a. **Strategic tradeoffs (optional, on positioning-framework.yaml):**
+   - "What do you always lead with?"
+   - "What do you deliberately NOT lead with, even though it is true?"
+   
+   Add `strategic_tradeoffs: {emphasize[], deliberately_not_emphasize[], rationale?}`.
+   The second list is the load-bearing one — if they cannot name anything they choose
+   not to emphasize, they have not made a tradeoff. Push once, then move on.
+
+5b. **Maintenance (optional, on positioning-framework.yaml):**
+   - "How often do you re-review positioning?" (`quarterly` / `semi-annual` / `annual` / `manual`)
+   - "When was it last reviewed?"
+   
+   Add `maintenance: {review_cadence, last_reviewed, next_review_due, checklist_refs[]}`.
+
+5c. **Objection handling (optional):**
+   - "What are the three objections you hear most?"
+   - For each: "What is the approved response?" and "What is the concern actually
+     driving it?" (the stated objection is often not the real one)
+   - "Does this objection apply to a specific product, or generally?"
+   
+   Generate `brands/{brand-id}/messaging/objection-handling.yaml` with `items[]`, each
+   carrying `id`, `objection` (in the buyer's words), `category`, and `response`.
+   Categories: `price_budget`, `product_capability`, `need_value`, `timing_priority`,
+   `authority_process`, `competitor_alternative`, `status_quo`, `trust_risk`, `other`.
+   Prefer the most specific; `other` is a last resort. Leave `product_ids` empty or absent
+   when the objection is general — an empty list means "applies to all products", not
+   "to none".
+   
+   Record the concern behind the objection in the field named **`underlying_concern`**.
+   Use that exact key — a plausible alternative like `driving_concern` passes validation
+   silently and is then invisible to `mac-gtm-strategist`, which reads
+   `underlying_concern` specifically.
+   
+   `id` must be **kebab-case** (`obj-price-too-high`, not `Price Too High`).
+
+5d. **Copy blocks (optional):**
+   - "Do you have approved copy you reuse across surfaces?" (headline, 25/50/100-word
+     descriptions, press-release boilerplate)
+   - For each: "Must this be used verbatim, or may writers adapt it?"
+   
+   Generate `copy-blocks.yaml` with `blocks[]`, each carrying `id`, `length_tier`,
+   `text`, `reuse_rule`, and `purpose`. `length_tier` is the authoritative length
+   contract — do NOT add a separate word-count field.
+   
+   **`length_tier` must be one of exactly these seven values** — the words used in the
+   question above are NOT valid values:
+   
+   | Their answer | `length_tier` value | Words |
+   |---|---|---|
+   | headline | `headline_5_7` | 5–7 |
+   | ~25-word description | `desc_25` | 20–30 |
+   | ~50-word description | `desc_50` | 40–60 |
+   | ~75-word description | `desc_75` | 60–90 |
+   | ~100-word description | `desc_100` | 80–120 |
+   | ~150-word description | `desc_150` | 120–180 |
+   | press-release boilerplate | `boilerplate_pr` | unbounded |
+   
+   Writing `headline` or `boilerplate` fails validation. Ask about the 75- and 150-word
+   tiers too if they publish long-form descriptions; the question above does not prompt
+   for them.
+   
+   Map their answer to `reuse_rule`: verbatim → `use_exactly`; reuse-but-restructure →
+   `prefer_exact_no_synonyms`; rewrite-but-keep-the-claims →
+   `adapt_preserve_terms_and_claims`. Warn them that within a passage recognisable as a
+   reuse, `use_exactly` means even a synonym counts as drift.
+
+5e. **Buying-committee messages (optional, B2B):**
+   - "Who else has to say yes?"
+   - For each role: "What does a win look like to them?" and "What is the one thing
+     they must hear?"
+   
+   Generate `buying-committee-messages.yaml` with `roles[]` using the five archetypes
+   `champion`, `economic_buyer`, `technical_evaluator`, `end_user`, `approver_blocker` —
+   each at most once.
+   
+   **Each entry needs exactly these three keys**, and the field names are not obvious
+   from the questions above:
+   
+   ```yaml
+   roles:
+     - role: economic_buyer
+       success_criteria: "Predictable spend and a defensible three-year TCO."   # their "what a win looks like"
+       core_message: "Consolidating three tools reduces total cost."            # their "one thing they must hear"
+       objections: ["This costs more than the three tools we use today."]       # optional
+       proof_refs: [pp-tco-3yr]                                                 # optional
+   ```
+   
+   Writing `what_a_win_looks_like` or `key_message` instead fails validation. This is a MESSAGING model, distinct from the ICP `buying_committee`
+   block, which is an ACCOUNT-STRUCTURE model. Do not copy one into the other; see the
+   crosswalk in pack-contract.md §2.17.
+
+5f. **FAQs (optional):**
+   - "What questions do prospects ask over and over?"
+   - For each: "What is the approved answer?" and — critically — **"Is this answer
+     approved for publication on your website, or is it internal only?"**
+   
+   Generate `faqs.yaml` with `items[]`, each carrying `id`, `question` (the customer's
+   phrasing), `answer`, and `category`.
+   
+   **`category` must be one of exactly these nine values:** `product`, `pricing`,
+   `security_compliance`, `integration`, `implementation`, `support`, `billing`,
+   `general`, `other`. Natural answers like `onboarding` or `getting_started` fail
+   validation — map onboarding questions to `implementation`. Note `pricing` (what it
+   costs) versus `billing` (how you pay for it).
+   
+   Keep `question` and `answer` to running prose on a single logical line. Do not embed
+   Markdown headings or lists in the question: published FAQs are emitted into `llms.txt`
+   as headings, and the emitter collapses whitespace, so structure authored there is
+   flattened rather than rendered.
+   
+   **Set `visibility` explicitly on every entry.** It is optional in the schema and
+   resolves to `internal` when unset, so an omission is safe but silent — an FAQ the
+   company wanted published simply will not be. Never infer `public` from context; ask.
+   If they hesitate, leave it internal.
+   
+   > **What `visibility: public` does today.** It marks the entry as approved for
+   > publication. The Public Brand API generator reads the *source-side* file
+   > `sources/messaging/faqs.yaml` in a MaC repository — it does **not** currently read
+   > the pack path `brands/{brand-id}/messaging/faqs.yaml` you are writing here (tracked
+   > as BEA-264). So marking an FAQ public in a pack records the decision; it does not by
+   > itself publish anything until the pack is synced into a repo's `sources/`. Tell the
+   > user that plainly rather than promising publication.
+   
+   When an FAQ answers the same underlying resistance as an objection, link them with
+   `related_objection_ids` — every id must resolve to an entry in
+   `objection-handling.yaml`.
+
 6. **Copy intelligence (BEA-63) — writer profile defaults:**
    These answers seed the company-default writer profile fields used by
    mac-content-creator when generating content. Ask each; accept defaults.
@@ -561,6 +688,23 @@ For each expected path in the pack contract, confirm presence or note absence:
 - `brands/{brand-id}/messaging/positioning-framework.yaml` (required)
 - `rubrics/instances/brand-compliance.yaml` (expected post-Phase 6)
 
+Messaging consumption assets (pack contract v1.8 §2.15–§2.18) — all four **optional**.
+Report presence or absence as information; never as a failure:
+- `brands/{brand-id}/messaging/objection-handling.yaml` (optional)
+- `brands/{brand-id}/messaging/copy-blocks.yaml` (optional)
+- `brands/{brand-id}/messaging/buying-committee-messages.yaml` (optional)
+- `brands/{brand-id}/messaging/faqs.yaml` (optional)
+
+When `faqs.yaml` is present, additionally report the publication split, because a
+forgotten `visibility` field is silent — the FAQ is simply never published:
+> "ℹ `faqs.yaml`: {N} public, {M} internal, {K} with no `visibility` set.
+> Entries with no `visibility` resolve to **internal** and are never published.
+> Set `visibility: public` explicitly on anything intended for the website."
+
+When both `faqs.yaml` and `objection-handling.yaml` are present, confirm every
+`related_objection_ids` value resolves to an objection id. A dangling reference is an
+error — report the file, the FAQ id, and the unresolved reference.
+
 Additionally, validate pack contract v1.1 **classification metadata** (§3.6):
 For each artifact in the pack carrying `_source_meta.classification`, confirm
 the value is in the supported set:
@@ -714,7 +858,11 @@ don't need the full company pack.
 │   ├── value-propositions.yaml
 │   ├── proof-points.yaml
 │   ├── messaging-pillars.yaml
-│   └── competitive-positioning.yaml   (if present)
+│   ├── competitive-positioning.yaml       (if present)
+│   ├── objection-handling.yaml            (if present)
+│   ├── copy-blocks.yaml                   (if present)
+│   ├── buying-committee-messages.yaml     (if present)
+│   └── faqs.yaml                          (if present)
 ├── writer-profiles/
 │   └── {writer-id}.yaml               (if present)
 └── pack.yaml
