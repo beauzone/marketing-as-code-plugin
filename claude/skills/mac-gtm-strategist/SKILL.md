@@ -1,6 +1,6 @@
 ---
 name: mac-gtm-strategist
-version: 2.5.0
+version: 2.5.1
 description: >
   A structured B2B and B2C marketing and go-to-market strategy skill backed by
   analytical frameworks, SME buyer personas, B2C operator personas, consumer
@@ -16,8 +16,8 @@ description: >
 ---
 
 <!--
-SKILL_VERSION: 2.5.0
-SKILL_UPDATED: 2026-07-25
+SKILL_VERSION: 2.5.1
+SKILL_UPDATED: 2026-09-22
 -->
 
 # MaC GTM Strategist
@@ -62,10 +62,18 @@ never actually fired; it was removed in favor of the native install-channel
 update paths above.)
 
 ### Step 1 — MaC MCP Detection
-Check whether a Marketing as Code MCP server is connected. Look for available tools
-matching any of these names: `brand_voice`, `audience_personas`, `list_brands`,
-`messaging_framework`. Alternatively, read `~/.claude/settings.json` and check for
-any registered MCP server whose command or URL references `marketing-as-code` or `mac`.
+Check whether a Marketing as Code MCP server is connected. **Detect by capability, not
+by name.** Look through the available tools for one whose name ends in `whoami`,
+`health`, or `registry_status` and whose namespace also carries MaC pack tools such as
+`get_company_overview`, `get_brand_voice`, or `get_messaging_framework`.
+
+Do **not** match on a fixed server prefix. The namespace varies by host and install —
+it may be `mcp__marketing-as-code__`, a connector UUID, or something else entirely — so
+a hardcoded prefix will fail against a server that is connected and working.
+
+If the tool list is inconclusive, calling `whoami` is the definitive check: it succeeds
+only against a live, authenticated MaC server. A call that errors means no usable
+server; say so rather than silently continuing as if none were configured.
 
 - **If a MaC MCP server is found:** Announce it.
   > "I can see a Marketing as Code server is connected — I'll use it as your brand
