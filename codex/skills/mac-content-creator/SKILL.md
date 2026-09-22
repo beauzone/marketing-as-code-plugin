@@ -1,12 +1,12 @@
 ---
 name: mac-content-creator
-version: 2.3.0
+version: 2.3.1
 description: "create, edit, and export branded marketing documents and media across formats (pptx, docx, xlsx, pdf, markdown, text, rtf, and remotion video). reads company/brand context from the shared MaC company pack path or MCP server. writes copy AND assembles finished documents in a single pass — datasheets, case studies, one-pagers, blog posts, email copy, social content, branded presentations, and videos. applies brand voice, terminology, messaging pillars, proof points, and visual identity from the company pack. supports writer profile voice calibration. auto-synced from mac-registry."
 ---
 
 <!--
-SKILL_VERSION: 2.3.0
-SKILL_UPDATED: 2026-07-25
+SKILL_VERSION: 2.3.1
+SKILL_UPDATED: 2026-09-22
 -->
 
 # MaC Content Creator
@@ -49,10 +49,18 @@ update paths above.)
 
 ### Step 1 — MaC MCP Detection
 
-Check whether a Marketing as Code MCP server is connected. Look for available tools
-matching any of these prefixes or names: `mcp__mac__`, `brand_voice`, `list_brands`,
-`audience_personas`, `messaging_framework`. Alternatively, check `~/.claude/settings.json`
-for any registered MCP server whose command or URL references `marketing-as-code` or `mac`.
+Check whether a Marketing as Code MCP server is connected. **Detect by capability, not
+by name.** Look through the available tools for one whose name ends in `whoami`,
+`health`, or `registry_status` and whose namespace also carries MaC pack tools such as
+`get_company_overview`, `get_brand_voice`, or `get_messaging_framework`.
+
+Do **not** match on a fixed server prefix. The namespace varies by host and install —
+it may be `mcp__marketing-as-code__`, a connector UUID, or something else entirely — so
+a hardcoded prefix will fail against a server that is connected and working.
+
+If the tool list is inconclusive, calling `whoami` is the definitive check: it succeeds
+only against a live, authenticated MaC server. A call that errors means no usable
+server; say so rather than silently continuing as if none were configured.
 
 - **If a MaC MCP server is found:** Announce it.
   > "I can see a Marketing as Code server is connected — I'll use it as the brand
