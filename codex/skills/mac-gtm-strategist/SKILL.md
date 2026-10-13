@@ -1,6 +1,6 @@
 ---
 name: mac-gtm-strategist
-version: 2.5.1
+version: 2.5.2
 description: >
   A structured B2B and B2C marketing and go-to-market strategy skill backed by
   analytical frameworks, SME buyer personas, B2C operator personas, consumer
@@ -16,7 +16,7 @@ description: >
 ---
 
 <!--
-SKILL_VERSION: 2.5.1
+SKILL_VERSION: 2.5.2
 SKILL_UPDATED: 2026-09-22
 -->
 
@@ -79,11 +79,49 @@ server; say so rather than silently continuing as if none were configured.
   > "I can see a Marketing as Code server is connected — I'll use it as your brand
   > context source for this session."
   If multiple servers are registered, list them and ask which to use.
+  Then load company context as described in *Loading context from the MaC
+  server* below, and skip Step 2.
 
 - **If no server is found:** Proceed to Step 2.
 
+### Loading context from the MaC server
+
+When Step 1 found a MaC server, load company context through its tools, in this
+order. Paths passed to `get_company_pack_file` are relative to the pack root
+(e.g. `brands/kymata/terminology.yaml`), never prefixed with `company-packs/`.
+
+1. **Pick the company.** Call `list_my_companies`. One company: use it. Several:
+   ask which. Never guess a `company_slug`.
+2. **Company basics.** `get_company_overview(company_slug)` — identity, products,
+   key facts.
+3. **Voice.** `get_brand_voice(company_slug)`. If it returns
+   `error: brand_ambiguous`, ask which of `available_brands` to use and pass it as
+   `brand` on this and every later call.
+4. **Messaging.** `get_messaging_framework(company_slug, brand)` returns
+   positioning, pillars, value propositions, proof points, and competitive
+   positioning in one call. If `warnings` names missing files, tell the user.
+5. **Audiences.** `get_company_audiences(company_slug)` — the company's ICPs and
+   personas. (`get_persona` serves the *system* persona library, not the
+   company's own personas.)
+6. **Everything else.** `list_company_pack_files(company_slug)`, then
+   `get_company_pack_file(company_slug, file_path)` for what the calls above do
+   not cover — at minimum `brands/{brand}/terminology.yaml` (approved and
+   prohibited terms; honour each term's `scope`, `allowed_in` and
+   `prohibited_in`), plus `brands/{brand}/tone-guidelines.yaml` and
+   `brands/{brand}/visual-identity.yaml` when the task needs them, and any
+   company template under `templates/`.
+7. **Errors are not absence.** If a call returns an error (access denied, not
+   found, server unreachable), tell the user in plain words what failed. Do not
+   silently fall back to local packs or system defaults.
+
 ### Step 2 — Local Brand Pack Detection
 
+> **MaC repository only.** The Python helpers named in this section ship in the
+> MaC source repository, not in the installed plugin. In an installed plugin, do
+> not try to import or run them — carry out the same steps directly: read the
+> pack files (through the MaC server when connected), and check them against the
+> rules described in this skill.
+>
 > **Build Cycle 37 — Pack validation is now automatic.** When loading a company pack,
 > use `pack_io.load_pack()` from `skills/_shared/pack_io.py` — validation runs before
 > data is returned, and a clear error is raised if the pack is invalid.
@@ -1042,6 +1080,13 @@ GTM artifacts are evaluated against these dimensions:
 
 ### 16.6 Dependency Record (as of Cycle Prompt A)
 
+> **MaC repository only.** The Python helpers named in this section ship in the
+> MaC source repository, not in the installed plugin. In an installed plugin, do
+> not try to import or run them — carry out the same steps directly: read the
+> pack files (through the MaC server when connected), and check them against the
+> rules described in this skill.
+
+
 - Compiler version: `1.0.0`
 - Scaffold versions: brand-compliance `2.0.0`, messaging-alignment `2.0.0`, audience-fit `2.0.0`, competitive-safety `1.1.0`
 - Rubric instance schema: `1.2.0` (adds `applies_when` field, classification taxonomy)
@@ -1212,6 +1257,11 @@ If a remote asset has no `version` field (legacy entry), treat it as
 ---
 
 ## 18. Parallel-Draft + Grader Loop (BEA-65)
+
+> **MaC repository only.** The grader loop runs from scripts in the MaC source
+> repository; they are not part of the installed plugin. In an installed plugin,
+> generate a single draft (§the framework output steps above) and review it with §16 instead — do not try
+> to run `draft_loop.py` or import its helpers.
 
 The grader loop is the governed generation backend for strategy content production.
 Instead of delivering the first draft, it generates N candidate drafts, scores each

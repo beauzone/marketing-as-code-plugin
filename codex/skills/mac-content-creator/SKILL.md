@@ -1,11 +1,11 @@
 ---
 name: mac-content-creator
-version: 2.3.1
+version: 2.3.2
 description: "create, edit, and export branded marketing documents and media across formats (pptx, docx, xlsx, pdf, markdown, text, rtf, and remotion video). reads company/brand context from the shared MaC company pack path or MCP server. writes copy AND assembles finished documents in a single pass — datasheets, case studies, one-pagers, blog posts, email copy, social content, branded presentations, and videos. applies brand voice, terminology, messaging pillars, proof points, and visual identity from the company pack. supports writer profile voice calibration. auto-synced from mac-registry."
 ---
 
 <!--
-SKILL_VERSION: 2.3.1
+SKILL_VERSION: 2.3.2
 SKILL_UPDATED: 2026-09-22
 -->
 
@@ -169,10 +169,41 @@ These belong to other skills and are not part of this skill's operation.
 
 When loading brand and company context, resolve in this order:
 
-1. **MaC MCP server** (if detected in Step 1) — full governed context via MCP tools
+1. **MaC MCP server** (if detected in Step 1) — full governed context via MCP tools;
+   see *Loading context from the MaC server* below
 2. **Shared path** — `~/.claude/mac/companies/{company_id}/` (MaC Company Manager output)
 3. **Legacy path** — `~/.claude/skills/document-creator/companies/{company_id}/` (migration fallback)
 4. **System defaults** — `~/.claude/skills/mac-content-creator/system/brand-pack/brand-pack.yaml`
+
+### Loading context from the MaC server
+
+When Step 1 found a MaC server, load company context through its tools, in this
+order. Paths passed to `get_company_pack_file` are relative to the pack root
+(e.g. `brands/kymata/terminology.yaml`), never prefixed with `company-packs/`.
+
+1. **Pick the company.** Call `list_my_companies`. One company: use it. Several:
+   ask which. Never guess a `company_slug`.
+2. **Company basics.** `get_company_overview(company_slug)` — identity, products,
+   key facts.
+3. **Voice.** `get_brand_voice(company_slug)`. If it returns
+   `error: brand_ambiguous`, ask which of `available_brands` to use and pass it as
+   `brand` on this and every later call.
+4. **Messaging.** `get_messaging_framework(company_slug, brand)` returns
+   positioning, pillars, value propositions, proof points, and competitive
+   positioning in one call. If `warnings` names missing files, tell the user.
+5. **Audiences.** `get_company_audiences(company_slug)` — the company's ICPs and
+   personas. (`get_persona` serves the *system* persona library, not the
+   company's own personas.)
+6. **Everything else.** `list_company_pack_files(company_slug)`, then
+   `get_company_pack_file(company_slug, file_path)` for what the calls above do
+   not cover — at minimum `brands/{brand}/terminology.yaml` (approved and
+   prohibited terms; honour each term's `scope`, `allowed_in` and
+   `prohibited_in`), plus `brands/{brand}/tone-guidelines.yaml` and
+   `brands/{brand}/visual-identity.yaml` when the task needs them, and any
+   company template under `templates/`.
+7. **Errors are not absence.** If a call returns an error (access denied, not
+   found, server unreachable), tell the user in plain words what failed. Do not
+   silently fall back to local packs or system defaults.
 
 ### Full MaC schema set (when created by Company Manager)
 
@@ -442,11 +473,20 @@ default revision-cycle count — the *shape* of the piece, independent of voice.
 1. **Identify `content_type`** from the deliverable request (e.g.
    `b2b-blog-post`, `b2b-case-study`, `b2c-email`). Map the user's plain-language
    ask to the closest template_id.
-2. **Load the template** via `skills/_shared/template_loader.py`
-   `load_template_for_generation(content_type, writer_profile, funnel_stage,
-   brand_voice_guide)`. It checks `templates/content-types/custom/` (company
-   overrides) before `templates/content-types/` (system) and merges over
-   `_base.yaml`.
+2. **Load the template.** Company templates win over system ones.
+   - **Company template:** with a MaC server, look under `templates/` in
+     `list_company_pack_files` and read a match with `get_company_pack_file`.
+   - **Content-type scaffold** (`b2b-blog-post`, `b2c-email`, …): these are a
+     separate family the server does **not** serve — `get_template` returns
+     document templates (`solution-brief`, `case-study`, `one-pager`, …), not
+     content-type scaffolds, so do not substitute one for the other. Locally,
+     read `templates/content-types/custom/` (company overrides) before
+     `templates/content-types/` (system), merged over `_base.yaml`. If no
+     scaffold is available, follow the non-blocking rule below.
+   - **Document template:** when the deliverable *is* a document template,
+     use `list_templates` / `get_template(template_id)`.
+   (`skills/_shared/template_loader.py` does the local lookup in the MaC source
+   repository; it is not part of the installed plugin.)
 3. **Load the writer profile** (§2) — its `copy_structure` (when not `default`)
    overrides the template's `primary_framework`, and its `funnel_voice` entry for
    the template's `funnel_stage` is appended to the prompt. `vocabulary.banned`
@@ -462,6 +502,9 @@ default revision-cycle count — the *shape* of the piece, independent of voice.
 `load_template_for_generation` returns `found=False` with a warning (logged via
 `logger.add_warning`) and an empty fragment — generation proceeds without a
 scaffold using brand context alone. Never block generation on a missing template.
+The helper only logs that warning; **you** must tell the user no scaffold was
+found. (In the installed plugin, apply the same rule directly: no scaffold →
+generate from brand context and say so.)
 
 The effective revision-cycle limit for the grader loop is
 `min(system_hard_cap=3, company_cap, content_type_override, template
@@ -760,6 +803,12 @@ No API key required. Public static files.
 
 ## 9. Output & Delivery
 
+> **MaC repository only.** The Python helpers named in this section ship in the
+> MaC source repository, not in the installed plugin. In an installed plugin, do
+> not try to import or run them — carry out the same steps directly: read the
+> pack files (through the MaC server when connected), and check them against the
+> rules described in this skill.
+>
 > **Build Cycle 37 — Pack validation is now automatic.** When loading a company pack,
 > use `pack_io.load_pack()` from `skills/_shared/pack_io.py` — validation runs before
 > data is returned, and a clear error is raised if the pack is invalid.
@@ -1144,6 +1193,13 @@ Content artifacts differ from GTM strategy artifacts in important ways:
 
 ### 11.7 Dependency Record (as of Cycle Prompt A)
 
+> **MaC repository only.** The Python helpers named in this section ship in the
+> MaC source repository, not in the installed plugin. In an installed plugin, do
+> not try to import or run them — carry out the same steps directly: read the
+> pack files (through the MaC server when connected), and check them against the
+> rules described in this skill.
+
+
 - Compiler version: `1.0.0`
 - Scaffold versions: brand-compliance `2.0.0`, messaging-alignment `2.0.0`, audience-fit `2.0.0`, competitive-safety `1.1.0`
 - Rubric instance schema: `1.2.0` (adds `applies_when` field, classification taxonomy)
@@ -1161,6 +1217,11 @@ Content artifacts differ from GTM strategy artifacts in important ways:
 ---
 
 ## 12. Parallel-Draft + Grader Loop (BEA-65)
+
+> **MaC repository only.** The grader loop runs from scripts in the MaC source
+> repository; they are not part of the installed plugin. In an installed plugin,
+> generate a single draft (§5) and review it with §11 instead — do not try
+> to run `draft_loop.py` or import its helpers.
 
 The grader loop is the governed generation backend for content production. Instead of
 delivering the first draft, it generates N candidate drafts, scores each against the

@@ -1,6 +1,6 @@
 ---
 name: mac-guide-creator
-version: 1.0.0
+version: 1.0.1
 description: >-
   Create and deliver a personalized Marketing as Code (MaC) Getting Started Guide for a
   specific MaC user, then email it to them. Use this skill whenever someone wants to
@@ -71,7 +71,10 @@ gates the toolbox by the user's highest role. It requires the `docx` npm package
 (`npm install -g docx` if not present) and Node.js.
 
 Then **validate** the file and, if a PDF converter (LibreOffice) is available, also
-produce a PDF for a clean, printable attachment:
+produce a PDF for a clean, printable attachment. The paths below are where the
+`docx` skill's helpers live on claude.ai; in other environments (Claude Code,
+Codex) they usually do not exist — if the validator is missing, open the file
+with the `docx` skill or skip validation rather than failing the run:
 
 ```bash
 python /mnt/skills/public/docx/scripts/office/validate.py /tmp/MaC-Getting-Started-Guide.docx

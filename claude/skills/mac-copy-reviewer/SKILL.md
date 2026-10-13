@@ -1,6 +1,6 @@
 ---
 name: mac-copy-reviewer
-version: 1.0.0
+version: 1.0.1
 description: >
   Review, audit, and rewrite marketing content against MaC writing quality standards.
   Three modes: detect (flag AI patterns without rewriting), rewrite (flag and fix with
@@ -17,11 +17,15 @@ MaC's de-slop layer. It makes the BEA-61 writing-quality rubric system
 interactively usable, adds two-pass detection, and introduces expert-panel mode
 where a target persona from the company pack becomes an adversarial reviewer.
 
-The scoring engine is `skills/_shared/copy_reviewer.py`, which composes the four
-writing-quality dimension scorers from `skills/_shared/standalone_scoring.py`
-(`wr-ai-pattern`, `wr-factual-quality`, `wr-voice-fidelity`,
-`wr-persona-resonance`) into the 25% writing-quality bundle. Every stage logs
-via `AuditLogger` (`skills/_shared/audit_logger.py`).
+It scores four writing-quality dimensions (`wr-ai-pattern`,
+`wr-factual-quality`, `wr-voice-fidelity`, `wr-persona-resonance`) that make up
+the 25% writing-quality bundle.
+
+In the MaC source repository these are implemented by
+`skills/_shared/copy_reviewer.py` and `skills/_shared/standalone_scoring.py`.
+Those files are **not** part of the installed plugin: when running as a plugin,
+do the review yourself against the loaded context and the output templates in
+`references/` — do not try to import or run them.
 
 ## Mode detection
 
@@ -54,12 +58,27 @@ Anything matching no trigger falls back to **rewrite** mode.
 ## Context loading
 
 At the start of every review session, load from the company pack (via the MaC
-MCP server if connected, else the local company pack path):
+MCP server if connected, else the local company pack path).
+
+**Detecting the server:** look for a tool ending in `whoami` alongside MaC pack
+tools such as `get_brand_voice` (any namespace prefix). When in doubt, call
+`whoami`; an error means no usable server — say so.
+
+**With the server:** `list_my_companies` (ask if more than one; never guess the
+slug) → `get_brand_voice(company_slug)` (pass `brand` if it reports
+`brand_ambiguous`) → `get_company_audiences(company_slug)` for the company's
+personas → `get_company_pack_file(company_slug, "brands/{brand}/terminology.yaml")`
+for vocabulary → `get_writer_profile(writer_profile_id)` if the user names one.
+If a call errors, tell the user what failed rather than silently using defaults.
 
 1. Brand voice guide — for voice_fidelity scoring.
 2. Target persona — for persona_resonance scoring and expert-panel mode.
 3. Writer profile — for voice calibration.
-4. Company vocabulary: `preferred[]`, `banned[]`, `tier1_exceptions[]`.
+4. Company vocabulary: `preferred[]`, `banned[]`, `tier1_exceptions[]`. Where a
+   term carries `scope: scoped` with `allowed_in` / `prohibited_in`, flag it only
+   in the contexts it is prohibited in (by content type, or when the company or
+   one of its capabilities is the sentence subject); report allowed uses as
+   information, not violations.
 5. Content type + funnel stage — for the tolerance matrix and copy-structure check.
 6. Model assignments — for `model_router.py`.
 
@@ -69,7 +88,9 @@ loaded. `tier1_exceptions` lets a company sanction otherwise-flagged generic
 vocabulary; a company `banned` term is treated as a Tier-1 violation for that
 company.
 
-Log each loaded file via `logger.complete_stage(session, "context_loaded", ...)`.
+In the MaC source repository, each loaded file is logged via
+`logger.complete_stage(session, "context_loaded", ...)`; skip this in the
+installed plugin.
 
 ## Detect mode output
 
@@ -121,7 +142,7 @@ When any mode scores below the 70% threshold, also emit the structured
 This is what BEA-65 (grader loop) consumes to drive the revision pass. It is
 included in the returned dict, not shown to the user.
 
-## Programmatic usage
+## Programmatic usage (MaC source repository only)
 
 ```python
 from skills._shared.copy_reviewer import review, load_context

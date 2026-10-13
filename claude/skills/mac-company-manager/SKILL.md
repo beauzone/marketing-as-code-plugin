@@ -1,6 +1,6 @@
 ---
 name: mac-company-manager
-version: 2.3.0
+version: 2.3.1
 description: >
   Creates, updates, and distributes company packs and brand packs for the
   Marketing as Code ecosystem. Runs a comprehensive onboarding interview,
@@ -16,7 +16,7 @@ description: >
 ---
 
 <!--
-SKILL_VERSION: 2.3.0
+SKILL_VERSION: 2.3.1
 SKILL_UPDATED: 2026-07-25
 -->
 
@@ -98,7 +98,7 @@ Then pick the **persistence target** for the session:
 **Server write tool contract** (all take `company_slug` + `file_path`/
 `artifact_path` + `content`, optional `commit_message`). `file_path` is
 **relative to the company pack root** — the server resolves it under
-`company-packs/{slug}/` itself. Pass `brand/voice.yaml` or
+`company-packs/{slug}/` itself. Pass `brands/{brand-id}/voice.yaml` or
 `research/stat-bank.yaml`, never `company-packs/{slug}/...` or `sources/...`
 (a prefixed path would be created as a nested subdirectory inside the pack
 and `get_pack_completeness` would still report the expected file missing):
@@ -646,6 +646,14 @@ For sufficiently populated dimensions, proceed to Step 2.
 
 For each qualifying dimension, invoke `compile_rubrics.py` from the MaC repo:
 
+> **MaC repository only.** The compiler and the dimension scaffolds it reads ship
+> in the MaC source repository, not in the installed plugin, and compilation
+> cannot be reproduced by hand. In an installed plugin, **do not compile and do
+> not write anything under `rubrics/instances/`.** Tell the user: "Rubric
+> instances have to be compiled from the MaC repository; until then, review and
+> scoring run scaffold-only (lower fidelity)." Then skip Steps 2–4 of this phase.
+
+
 ```bash
 python .github/scripts/compile_rubrics.py \
   --brand {pack_root}/brands/{brand-id}/ \
@@ -1115,6 +1123,12 @@ After mapping, report what was migrated and what needs completion:
 
 `validate {company-id}` checks pack completeness and schema compliance.
 
+> **MaC repository only.** The Python helpers named in this section ship in the
+> MaC source repository, not in the installed plugin. In an installed plugin, do
+> not try to import or run them — carry out the same steps directly: read the
+> pack files (through the MaC server when connected), and check them against the
+> rules described in this skill.
+>
 > **Build Cycle 37 — Automated validation:** Pack validation is now automatic.
 > The formal schemas in `schemas/pack/` and `scripts/validate_pack.py` enforce the
 > pack contract at both build time (producer) and load time (compiler, skills).
