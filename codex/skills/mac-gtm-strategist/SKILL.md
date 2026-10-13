@@ -1,10 +1,10 @@
 ---
 name: mac-gtm-strategist
-version: 2.5.2
+version: 2.5.3
 description: >
   A structured B2B and B2C marketing and go-to-market strategy skill backed by
   analytical frameworks, SME buyer personas, B2C operator personas, consumer
-  archetypes, and document templates — auto-synced from the mac-registry. Use
+  archetypes, and document templates — read live from the MaC server. Use
   this skill whenever the user asks about GTM strategy, positioning, competitive
   analysis, market sizing, ICP definition, consumer brand strategy, DTC growth,
   subscription retention, influencer programs, channel strategy, messaging,
@@ -16,8 +16,8 @@ description: >
 ---
 
 <!--
-SKILL_VERSION: 2.5.2
-SKILL_UPDATED: 2026-09-22
+SKILL_VERSION: 2.5.3
+SKILL_UPDATED: 2026-10-13
 -->
 
 # MaC GTM Strategist
@@ -29,8 +29,9 @@ like a CMO who has operated from pre-seed through public company — across both
 enterprise B2B and consumer B2C growth models.
 
 You have access to a remote catalog of analytical frameworks, SME buyer personas,
-B2C operator personas, consumer archetypes, and document templates — sourced from
-the mac-registry and auto-synced each session. Your job is to apply the right
+B2C operator personas, consumer archetypes, and document templates — served live
+by the MaC server when it is connected; without it, only the bundled summaries in
+`references/` are available. Your job is to apply the right
 framework to the user's problem, select the appropriate persona type to calibrate
 output, and use document templates to structure deliverables.
 
@@ -171,15 +172,16 @@ Check for existing brand packs at:
 >
 > Reply A or B."
 
-### Step 4 — Remote Asset Sync
-After Steps 1–3, check whether the local manifest cache is current (see §1).
+### Step 4 — Asset Catalog
+With a MaC server connected, count the library with `list_frameworks`,
+`list_personas`, `list_templates` and `list_writer_profiles`, and announce:
 
-Count assets from the five sanctioned families only (see §1 for the definitive
-list). Do not count or report skills, workflows, prompts, mcp_definitions,
-schemas, or any other manifest family. Announce:
+> "Asset catalog ready — [N] frameworks, [N] personas, [N] templates, [N] writer
+> profiles available."
 
-> "Asset catalog ready — [N] frameworks, [N] personas ([N] B2B buyer, [N] B2C operator,
-> [N] consumer archetypes), [N] templates, [N] writer profiles, [N] rubrics available."
+Without a server, skip this step: the remote catalog in §1 is unreachable (private
+repo). Work from the bundled `references/` files and say that the full library
+needs the MaC server.
 
 ---
 
@@ -202,7 +204,12 @@ LOCAL_CACHE     : ~/.claude/skills/mac-gtm-strategist/.cache/
 CACHE_TTL       : 24 hours
 ```
 
-**Cache behavior:**
+**Cache behavior — archival, not executed.** These steps describe the
+pre-private-repo cache. The raw URLs above now 404 for every client, and the
+Hermes distribution fetches through the authenticated GitHub Contents API
+instead (BEA-215), so nothing follows these steps. Never fetch the URLs or read
+`LOCAL_CACHE` in the plugin. Use the MaC server tools when connected; otherwise
+use the bundled `references/` files.
 1. On startup: check if `LOCAL_CACHE/manifest.yaml` is < 24 hours old.
    - If stale or missing: fetch `REMOTE_MANIFEST` and save to `LOCAL_CACHE/manifest.yaml`.
 2. When an asset is needed: check `LOCAL_CACHE/{family}/{id}.yaml` first.
@@ -236,7 +243,10 @@ These belong to the MaC platform and are not part of this skill's operation.
 
 ## 2. Brand Pack Management
 
-A brand pack is a named company context bundle. Packs are stored at:
+A brand pack is a named company context bundle. **With a MaC server connected,
+the company's pack lives on the server — read it there (Step 1) and do not
+create a local pack for that company.** Local packs are for working without a
+server, and are stored at:
 `~/.claude/skills/mac-gtm-strategist/companies/{company_id}/`
 
 **Pack structure:**
@@ -489,7 +499,8 @@ defines the consumer messaging.
 
 **Step 1 — Auto-select**
 Based on the task and business model, identify the best-fit persona(s) from the
-manifest. Fetch the top choice from cache.
+library (`list_personas`, filtered by `subcategory`). Load the top choice with
+`get_persona(persona_id)`. Without a server, use `references/smes-index.md`.
 
 **Step 2 — Confirm with the user**
 
@@ -602,7 +613,11 @@ to a document type.
 
 **How to apply:**
 1. Identify best-fit template
-2. Fetch YAML from `LOCAL_CACHE/templates/{id}.yaml` (or remote)
+2. Load the YAML with `get_template(template_id)` (MaC server). Without a server,
+   the index in `references/templates-index.md` names the templates but carries no
+   sections, word counts or quality criteria: pick the template from it, build a
+   sensible structure for that document type, and tell the user the governed
+   template structure needs the MaC server
 3. Structure output using defined sections, word counts, and `format_notes`
 4. Check against the template's `quality_criteria` before delivering
 
@@ -889,10 +904,9 @@ If asked for something clearly outside scope:
 | `references/smes-index.md` | Browsing personas (local reference — verify against cache) |
 | `references/templates-index.md` | Browsing templates |
 | `references/artifact-creation-guide.md` | Creating or migrating brand packs |
-| `LOCAL_CACHE/manifest.yaml` | Authoritative asset catalog (remote-synced) |
-| `LOCAL_CACHE/personas/{id}.yaml` | When applying a specific persona lens |
-| `LOCAL_CACHE/templates/{id}.yaml` | When producing a structured document deliverable |
-| `LOCAL_CACHE/frameworks/{id}.yaml` | When running a specific framework analysis |
+| `list_frameworks` / `get_framework` (MaC server) | Running a specific framework analysis |
+| `list_personas` / `get_persona` (MaC server) | Applying a specific persona lens |
+| `list_templates` / `get_template` (MaC server) | Producing a structured document deliverable |
 
 ---
 
@@ -1104,6 +1118,15 @@ GTM artifacts are evaluated against these dimensions:
 ---
 
 ## 17. Offline Sync & Asset Version Management
+
+> **Not operational in the installed plugin.** These commands fetch from
+> `raw.githubusercontent.com/beauzone/mac-registry`, which is a private repo, so
+> every request returns 404. If the user asks to `sync`, `refresh` or go `offline`,
+> explain that with a MaC server connected the library is read live and always
+> current, so no sync is needed; without the server, only the bundled
+> `references/` files are available. **Everything below this note in this section
+> is retained as reference for the MaC source repository and is not executed in
+> the installed plugin** — do not follow its fetch steps.
 
 ### Commands
 

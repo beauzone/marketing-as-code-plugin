@@ -1,7 +1,8 @@
 # Templates Index — GTM Strategist
 
 > The authoritative template catalog is the remote registry manifest at mac-registry.
-> After first sync, the full list is in `.cache/manifest.yaml` under `templates.system`.
+> The full templates (sections, word counts, quality criteria) are served by the MaC server
+> (`list_templates` / `get_template`); this index names them only.
 
 ---
 

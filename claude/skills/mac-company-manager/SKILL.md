@@ -1,6 +1,6 @@
 ---
 name: mac-company-manager
-version: 2.3.1
+version: 2.3.2
 description: >
   Creates, updates, and distributes company packs and brand packs for the
   Marketing as Code ecosystem. Runs a comprehensive onboarding interview,
@@ -16,8 +16,8 @@ description: >
 ---
 
 <!--
-SKILL_VERSION: 2.3.1
-SKILL_UPDATED: 2026-07-25
+SKILL_VERSION: 2.3.2
+SKILL_UPDATED: 2026-10-13
 -->
 
 # MaC Company Manager
@@ -79,10 +79,26 @@ read-only unless a search for `create_company_pack_file` by name comes back
 empty. In Claude Code you can alternatively read `~/.claude/settings.json`
 for any MCP server referencing `marketing-as-code` or `mac`.
 
+**Check the user's role first.** Call `list_my_companies`: each company carries
+the user's `role`. `owner`, `admin` and `editor` can write; `viewer` can only
+read. If
+the user is a viewer on the company they want to change, say so before starting
+any interview or edit ("You have view access to {company}, so I can review the
+pack and draft changes for you, but saving them needs an owner, admin or editor") —
+don't discover it at the first failed write. Writes to brand and messaging
+paths by anyone other than an owner (or Platform Admin) are staged as a pull
+request for an owner to approve rather than committed; report the PR the tool
+returns instead of saying the change is live.
+
+**If the company already exists on the server, the server pack is canonical.**
+Read and edit it there. Do not build a parallel local copy at
+`~/.claude/mac/companies/` for it — two copies drift.
+
 Then pick the **persistence target** for the session:
 
-- **Local disk available** (Claude Code on the user's machine):
-  `~/.claude/mac/companies/{company-id}/` is the canonical pack location.
+- **Local disk available** (Claude Code on the user's machine), for a company
+  that is **not** on the server: `~/.claude/mac/companies/{company-id}/` is the
+  canonical pack location.
   If the server is also connected, offer to mirror files there as you go.
   > "I can see a Marketing as Code MCP server is connected — I'll note that
   > any company pack changes you make here can also be pushed to your MaC
@@ -173,8 +189,9 @@ Check legacy skill paths for brand packs that predate this skill:
 
 ### Step 4 — Remote Asset Sync
 
-Check whether the local schema cache is current (see §1). If stale or missing,
-fetch silently. No announcement needed unless errors occur.
+Skip this step in the installed plugin: the schema catalog in §1 is unreachable
+(private repo), and fetching it only produces 404s. Use the schema summary in
+`references/schema-summary.md`.
 
 ---
 
@@ -200,7 +217,12 @@ CACHE_TTL       : 24 hours
 - `schemas` — for validation reference during company pack creation
 - `writer_profiles_system` — reference profiles for writer profile creation
 
-**Cache behavior:**
+**Cache behavior — archival, not executed.** These steps describe the
+pre-private-repo cache. The raw URLs above now 404 for every client, and the
+Hermes distribution fetches through the authenticated GitHub Contents API
+instead (BEA-215), so nothing follows these steps. Never fetch the URLs or read
+`LOCAL_CACHE` in the plugin. Use the MaC server tools when connected; otherwise
+use the bundled `references/` files.
 1. On startup: check if `LOCAL_CACHE/manifest.yaml` is < 24 hours old.
    If stale or missing, fetch `REMOTE_MANIFEST` and save it.
 2. When a schema is needed: check `LOCAL_CACHE/schemas/{name}.yaml` first.
@@ -1207,6 +1229,15 @@ Completeness score: 72% (15/21 recommended fields populated)
 ---
 
 ## 10. Sync & Version Management
+
+> **Not operational in the installed plugin.** These commands fetch from
+> `raw.githubusercontent.com/beauzone/mac-registry`, which is a private repo, so
+> every request returns 404. If the user asks to `sync`, `refresh` or go `offline`,
+> explain that with a MaC server connected the library is read live and always
+> current, so no sync is needed; without the server, only the bundled
+> `references/` files are available. **Everything below this note in this section
+> is retained as reference for the MaC source repository and is not executed in
+> the installed plugin** — do not follow its fetch steps.
 
 ### `sync`
 

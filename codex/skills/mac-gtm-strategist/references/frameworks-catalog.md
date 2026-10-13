@@ -2,7 +2,7 @@
 
 Domain tags: **[Universal]** applies to B2B and B2C | **[B2B]** primarily B2B | **[B2C]** primarily B2C
 
-The full framework library is sourced remotely from mac-registry. This file provides guidance on each framework for selection and application. Always fetch the full framework YAML from `LOCAL_CACHE/frameworks/{id}.yaml` before running.
+The full framework library is served by the MaC server. This file provides guidance on each framework for selection and application. Before running one, load its full YAML with `get_framework(framework_id)` (ids from `list_frameworks`). Without the server, run the framework from the guidance here and tell the user the full governed methodology needs the MaC server.
 
 ---
 

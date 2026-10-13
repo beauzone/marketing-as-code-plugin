@@ -1,7 +1,8 @@
 # SME & Persona Index — GTM Strategist
 
 > **Note:** The authoritative persona catalog is the remote registry manifest at mac-registry.
-> This file is a local reference. After first sync, the full catalog is in `.cache/manifest.yaml`.
+> This file is a local summary. The full persona library is served by the MaC server
+> (`list_personas` / `get_persona`); without the server, this summary is all that is available.
 >
 > **Three persona types in this skill:**
 > - **B2B Buyer Personas** — who you're SELLING TO in B2B (CISO, CTO, CFO, etc.)

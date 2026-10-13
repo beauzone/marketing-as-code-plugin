@@ -1,12 +1,12 @@
 ---
 name: mac-content-creator
-version: 2.3.2
-description: "create, edit, and export branded marketing documents and media across formats (pptx, docx, xlsx, pdf, markdown, text, rtf, and remotion video). reads company/brand context from the shared MaC company pack path or MCP server. writes copy AND assembles finished documents in a single pass — datasheets, case studies, one-pagers, blog posts, email copy, social content, branded presentations, and videos. applies brand voice, terminology, messaging pillars, proof points, and visual identity from the company pack. supports writer profile voice calibration. auto-synced from mac-registry."
+version: 2.3.3
+description: "create, edit, and export branded marketing documents and media across formats (pptx, docx, xlsx, pdf, markdown, text, rtf, and remotion video). reads company/brand context from the shared MaC company pack path or MCP server. writes copy AND assembles finished documents in a single pass — datasheets, case studies, one-pagers, blog posts, email copy, social content, branded presentations, and videos. applies brand voice, terminology, messaging pillars, proof points, and visual identity from the company pack. supports writer profile voice calibration. reads the governed library and company context live from the MaC server."
 ---
 
 <!--
-SKILL_VERSION: 2.3.2
-SKILL_UPDATED: 2026-09-22
+SKILL_VERSION: 2.3.3
+SKILL_UPDATED: 2026-10-13
 -->
 
 # MaC Content Creator
@@ -119,11 +119,13 @@ If no MCP server was found and no company pack was activated:
 
 ### Step 4 — Remote Asset Sync Check
 
-After Steps 1–3, check whether the local manifest cache is current (see §1).
+With a MaC server connected, count the library with `list_templates` and
+`list_writer_profiles` and announce:
 
-Count assets from the three sanctioned families only. Announce:
+> "Asset catalog ready — [N] system templates and [N] writer profiles available."
 
-> "Asset catalog ready — [N] system templates, [N] writer profiles, [N] rubrics available."
+Without a server, skip this step: the remote catalog in §1 is unreachable (private
+repo), so do not attempt to fetch it and do not report a count.
 
 ---
 
@@ -145,7 +147,12 @@ LOCAL_CACHE     : ~/.claude/skills/mac-content-creator/.cache/
 CACHE_TTL       : 24 hours
 ```
 
-**Cache behavior:**
+**Cache behavior — archival, not executed.** These steps describe the
+pre-private-repo cache. The raw URLs above now 404 for every client, and the
+Hermes distribution fetches through the authenticated GitHub Contents API
+instead (BEA-215), so nothing follows these steps. Never fetch the URLs or read
+`LOCAL_CACHE` in the plugin. Use the MaC server tools when connected; otherwise
+the governed library (system templates, writer profiles) is unavailable: say so. Company branding still resolves through §2 (a local company pack first, `system/brand-pack/` defaults only when there is none).
 1. On startup: check if `LOCAL_CACHE/manifest.yaml` is < 24 hours old.
    - If stale or missing: fetch `REMOTE_MANIFEST` and save to `LOCAL_CACHE/manifest.yaml`.
 2. When an asset is needed: check `LOCAL_CACHE/{family}/{id}.yaml` first.
@@ -173,7 +180,8 @@ When loading brand and company context, resolve in this order:
    see *Loading context from the MaC server* below
 2. **Shared path** — `~/.claude/mac/companies/{company_id}/` (MaC Company Manager output)
 3. **Legacy path** — `~/.claude/skills/document-creator/companies/{company_id}/` (migration fallback)
-4. **System defaults** — `~/.claude/skills/mac-content-creator/system/brand-pack/brand-pack.yaml`
+4. **System defaults** — `system/brand-pack/brand-pack.yaml` in this skill's own
+   directory (the plugin install location, not `~/.claude/skills/`)
 
 ### Loading context from the MaC server
 
@@ -326,7 +334,8 @@ When using `visual-identity.yaml` from a full MaC pack, map fields to rendering 
 
 If a writer profile is specified (by name, archetype, or use-case):
 1. Check company pack for a personal profile at `brands/{brand_id}/writer-profiles/{id}.yaml`
-2. If not found, check system profiles via `LOCAL_CACHE/writer_profiles_system/`
+2. If not found, load the system profile with `get_writer_profile(id)` (discover ids
+   with `list_writer_profiles`) when the MaC server is connected
 3. Load the profile and apply voice, syntax, diction, and anti-pattern guidance throughout
 4. Apply authorship weight from profile's `identity.authorship_model`:
    - `ghostwritten` → full fidelity (100%) — write exactly in their voice
@@ -386,10 +395,21 @@ Do not re-run strategy analysis — use the output as your content source.
 
 ### Template discovery order
 
-1. Company-specific templates at `~/.claude/mac/companies/{id}/templates/`
-2. Legacy templates at `~/.claude/skills/document-creator/companies/{id}/templates/`
+1. **With a MaC server:** company templates under `templates/` in the pack
+   (`list_company_pack_files`, then `get_company_pack_file`). These are YAML specs.
+   If a template's `base_assets` names a base file (a `.pptx`/`.docx` in Google
+   Drive or another skill's assets), the server cannot deliver it — it serves text
+   files only. Ask the user to attach that file; if they can't, say so and build
+   the document from the YAML spec and visual identity, flagging that it is not on
+   the approved base file. A YAML spec is a **generation spec** (sections, copy
+   rules, brand bindings): follow it directly. The single-pass orchestration
+   workflow below applies only to a template *folder* that actually contains
+   `template.pptx`, `manifest.json`, `content-schema.json` and `copy-prompt.md`;
+   don't look for those files behind a YAML spec.
+2. Company-specific templates at `~/.claude/mac/companies/{id}/templates/`
+3. Legacy templates at `~/.claude/skills/document-creator/companies/{id}/templates/`
    (or `~/.claude/skills/mac-content-creator/companies/{id}/templates/`)
-3. System templates from `LOCAL_CACHE/templates/`
+4. System document templates via `get_template(id)` (MaC server)
 
 ### Single-pass orchestration workflow
 
@@ -714,7 +734,7 @@ When CDN is unavailable (sandboxed or offline), the skill silently falls back to
 ### Dependencies
 
 ```bash
-pip install cairosvg Pillow --break-system-packages
+pip install cairosvg Pillow defusedxml python-pptx --break-system-packages
 ```
 
 ### Connectivity and fallback behavior
@@ -827,11 +847,14 @@ No API key required. Public static files.
 
 ### Output path convention
 
-Deliver finished files to: `/mnt/user-data/outputs/`
+Deliver finished files to `/mnt/user-data/outputs/` on claude.ai (the only place
+the user can download from there). In Claude Code, Cowork or Codex that path does
+not exist: write to the current working directory instead, or a folder the user
+names.
 
 Recommended path structure:
 ```
-/mnt/user-data/outputs/{company_id}/{deliverable-name}.{ext}
+{output_root}/{company_id}/{deliverable-name}.{ext}
 ```
 
 ### Completion block
@@ -856,6 +879,16 @@ After every document delivery, output:
 ---
 
 ## 10. Sync & Version Management
+
+> **Not operational in the installed plugin.** These commands fetch from
+> `raw.githubusercontent.com/beauzone/mac-registry`, which is a private repo, so
+> every request returns 404. If the user asks to `sync`, `refresh` or go `offline`,
+> explain that with a MaC server connected the library is read live and always
+> current, so no sync is needed; without the server, the governed library is
+> unavailable, and company branding still resolves through §2 (a local company
+> pack first, `system/brand-pack/` defaults only when there is none). **Everything below this note in this section
+> is retained as reference for the MaC source repository and is not executed in
+> the installed plugin** — do not follow its fetch steps.
 
 ### Commands
 

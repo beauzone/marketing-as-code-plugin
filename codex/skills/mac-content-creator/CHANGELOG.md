@@ -1,3 +1,9 @@
+## [2.3.3] - 2026-10-13
+- Plugin 0.1.12 (Build Cycle 284): dead registry fetches replaced with MaC server calls (`list_templates`, `get_template`, `list_writer_profiles`, `get_writer_profile`); legacy cache and `sync` marked archival; company templates read from the server first, with base `.pptx`/`.docx` files requested from the user; YAML generation specs distinguished from PPTX template folders; system-default brand pack path made relative to the skill; output path no longer assumes `/mnt/user-data/outputs/`.
+
+## [2.3.2] - 2026-10-13
+- Plugin 0.1.11 (Build Cycle 281): load company context from the MaC server; repo-only helpers labelled; content-type scaffolds vs document templates; one missing-scaffold rule.
+
 ## [2.1.1] - 2026-06-28
 - Fix four pre-existing P2 renderer bugs (BEA-173; surfaced by Codex on PR #125):
   - Remotion SSR helper (`scripts/render_remotion_ssr.mjs`) now resolves `@remotion/bundler`/`@remotion/renderer` from the project's `node_modules` via `createRequire`, and defaults `--project` to the bundled project — SSR no longer fails after the documented `npm install`.

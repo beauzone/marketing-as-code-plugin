@@ -90,7 +90,6 @@ New personas saved to:
 
 ## Sync Commands
 
-- **`sync`** — Downloads all system assets to local cache. Run on first install or full refresh.
-- **`refresh`** — Incremental update — only downloads new or changed assets.
-
-After sync, all assets are available offline in `~/.claude/skills/gtm-strategist/.cache/`.
+`sync` and `refresh` are not operational in the installed plugin: the registry is a
+private repo. With the MaC server connected the library is read live and always
+current; without it, only the bundled `references/` summaries are available.

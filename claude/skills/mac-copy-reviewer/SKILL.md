@@ -1,6 +1,6 @@
 ---
 name: mac-copy-reviewer
-version: 1.0.1
+version: 1.0.2
 description: >
   Review, audit, and rewrite marketing content against MaC writing quality standards.
   Three modes: detect (flag AI patterns without rewriting), rewrite (flag and fix with
@@ -80,7 +80,8 @@ If a call errors, tell the user what failed rather than silently using defaults.
    one of its capabilities is the sentence subject); report allowed uses as
    information, not violations.
 5. Content type + funnel stage — for the tolerance matrix and copy-structure check.
-6. Model assignments — for `model_router.py`.
+6. Model assignments — for `model_router.py` (MaC source repository only; skip in
+   the installed plugin).
 
 If the company pack is not found: run with system defaults (balanced preset,
 generic B2B patterns) and warn the user that company-specific context is not
