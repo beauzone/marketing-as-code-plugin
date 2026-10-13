@@ -1,0 +1,209 @@
+# wr-ai-pattern — Writing Quality bundle dimension
+# Detects AI-generated writing patterns: tier vocabulary, structural tells, communication
+# artifacts. Part of the writing_quality bundle (BEA-61, Cycle 67).
+# Loaded by skills/_shared/standalone_scoring.py::score_ai_pattern().
+
+metadata:
+  id: wr-ai-pattern
+  version: "1.0.0"
+  schema_version: "1.0"
+  display_name: "AI Pattern Density"
+  dimension: wr-ai-pattern
+  description: >
+    Detects AI-generated writing patterns across vocabulary tiers, structural tells,
+    and communication artifacts. Context-profile aware.
+
+dimension_id: wr-ai-pattern
+bundle: writing_quality
+weight: 0.25
+scoring_model_tier: fast
+
+# ── Vocabulary tiers ──────────────────────────────────────────────────────────
+# Tier 1: always flag (high-signal AI vocabulary)
+# Tier 2: flag in clusters of 2+ within a paragraph
+# Tier 3: flag at >= 3% density across the document
+vocabulary:
+  tier_1:
+    - leverage
+    - utilize
+    - delve
+    - robust
+    - seamless
+    - harness
+    - empower
+    - foster
+    - paradigm
+    - synergy
+    - streamline
+    - revolutionary
+    - transformative
+    - cutting-edge
+    - comprehensive
+    - holistic
+    - proactive
+    - scalable
+    - actionable
+    - impactful
+    - commence
+    - facilitate
+    - endeavor
+    - ascertain
+    - prioritize
+    - optimize
+    - deploy
+    - ecosystem
+    - paradigm-shifting
+    - best-in-class
+    - innovative solutions
+    - leverage synergies
+    - digital transformation journey
+    - move the needle
+    - circle back
+    - deep dive
+    - low-hanging fruit
+    - thought leadership
+    - game-changer
+    - unlock
+    - elevate
+    - supercharge
+  tier_2:
+    - navigate
+    - landscape
+    - realm
+    - tapestry
+    - testament
+    - underscore
+    - pivotal
+    - crucial
+    - vital
+    - essential
+    - significant
+    - notable
+    - myriad
+    - plethora
+    - nuanced
+    - intricate
+    - multifaceted
+  tier_3:
+    - solution
+    - approach
+    - strategy
+    - framework
+    - insight
+    - value
+    - journey
+    - experience
+
+  tier_3_density_threshold: 0.03  # flag when any tier-3 word exceeds 3% of words
+
+# ── Pattern categories (42 across 5 groups) ─────────────────────────────────────
+pattern_categories:
+  content:
+    - significance_inflation
+    - generic_conclusions
+    - hedge_stacking
+    - vague_attribution
+    - filler_context
+    - false_balance
+    - unsupported_superlatives
+    - empty_enthusiasm
+  language:
+    - tier_1_vocabulary
+    - tier_2_cluster
+    - tier_3_density
+    - copula_avoidance
+    - nominalization
+    - adverb_overuse
+    - passive_overuse
+    - transition_phrases
+  structure:
+    - uniform_rhythm
+    - formulaic_challenges
+    - listicle_padding
+    - rule_of_three_overuse
+    - parallel_overstructure
+    - symmetrical_paragraphs
+    - bookend_repetition
+    - section_label_bloat
+  communication:
+    - chatbot_artifacts
+    - sycophantic_tone
+    - meta_commentary
+    - apologetic_hedging
+    - over_explanation
+    - false_collaboration
+    - permission_seeking
+    - summary_restatement
+  meta:
+    - self_reference
+    - capability_disclaimer
+    - knowledge_cutoff_mention
+    - as_an_ai
+    - here_is_what
+    - in_conclusion_marker
+    - i_hope_this_helps
+    - certainly_opener
+    - feel_free
+    - rhetorical_question_opener
+
+# ── Severity assignment ─────────────────────────────────────────────────────────
+severity:
+  P0:
+    - chatbot_artifacts
+    - sycophantic_tone
+    - significance_inflation
+  P1:
+    - tier_1_vocabulary
+    - copula_avoidance
+    - generic_conclusions
+    - formulaic_challenges
+  P2:
+    - tier_2_cluster
+    - transition_phrases
+    - uniform_rhythm
+
+# ── Context-profile tolerance matrix ────────────────────────────────────────────
+# tolerance multiplier applied to flagging thresholds. Lower = stricter.
+context_profiles:
+  linkedin:
+    tolerance: 1.3
+    description: "Conversational; permits more colloquial phrasing."
+  blog:
+    tolerance: 1.0
+    description: "Default editorial standard."
+  whitepaper:
+    tolerance: 0.7
+    description: "Strict; formal authority required."
+  investor_email:
+    tolerance: 0.6
+    description: "Strictest; precision and credibility paramount."
+  case_study:
+    tolerance: 0.9
+    description: "Slightly relaxed for narrative warmth."
+  cold_email:
+    tolerance: 1.1
+    description: "Permits direct, punchy phrasing."
+  technical_doc:
+    tolerance: 0.8
+    description: "Precision required; some jargon tolerated."
+
+# ── Scoring rubric ──────────────────────────────────────────────────────────────
+scoring_rubric:
+  - score: 0
+    description: "Pervasive AI patterns; reads entirely machine-generated. P0 artifacts present."
+  - score: 3
+    description: "Heavy AI patterns; multiple tier-1 violations and structural tells."
+  - score: 5
+    description: "Moderate AI patterns; noticeable vocabulary and rhythm issues."
+  - score: 7
+    description: "Light AI patterns; a few flags but largely human-sounding."
+  - score: 9
+    description: "Minimal AI patterns; isolated, low-severity flags only."
+  - score: 10
+    description: "Clean; no detectable AI patterns."
+
+# ── Rewrite trigger ─────────────────────────────────────────────────────────────
+rewrite_trigger:
+  tier_1_flag_threshold: 5
+  pattern_category_threshold: 3
+  require_uniform_rhythm: true

@@ -1,0 +1,83 @@
+# wr-persona-resonance — Writing Quality bundle dimension
+# Scores how well content resonates with the target persona at the given funnel stage,
+# using copy structures and persona reviewer questions. (BEA-61, Cycle 67)
+# Loaded by skills/_shared/standalone_scoring.py::score_persona_resonance().
+
+metadata:
+  id: wr-persona-resonance
+  version: "1.0.0"
+  schema_version: "1.0"
+  display_name: "Persona Resonance"
+  dimension: wr-persona-resonance
+  description: >
+    Evaluates resonance with the target persona and funnel stage via copy structures
+    and persona reviewer questions.
+
+dimension_id: wr-persona-resonance
+bundle: writing_quality
+weight: 0.25
+scoring_model_tier: standard
+context_required:
+  - target_persona
+  - funnel_stage
+
+# B2B copy structures by funnel stage
+b2b_copy_structures:
+  tofu:
+    framework: logic-sandwich
+    structure: "emotional hook (pain) -> logical solution (evidence) -> emotional close (vision)"
+  mofu:
+    framework: PAS
+    structure: "specific problem -> proof-point evidence -> social proof close"
+  bofu:
+    framework: FAB
+    structure: "capability -> ROI/risk evidence -> friction-removal close"
+
+# B2C copy structures
+b2c_copy_structures:
+  tofu:
+    framework: AIDA
+    structure: "attention -> interest -> desire -> action"
+  mofu:
+    framework: BAB
+    structure: "before -> after -> bridge"
+  bofu:
+    framework: direct-response
+    structure: "offer -> proof -> urgency -> action"
+
+# Default persona reviewer questions
+persona_reviewer_questions:
+  cio:
+    - "Does this address integration complexity and implementation risk?"
+    - "Is there a clear ROI or business case?"
+    - "How does this fit our existing architecture?"
+  cfo:
+    - "What is the total cost of ownership over 3 years?"
+    - "What is the payback period?"
+    - "How does this reduce risk?"
+  practitioner:
+    - "How does this actually work, technically?"
+    - "What are the failure modes?"
+    - "Is the technical depth credible?"
+  vp_marketing:
+    - "How does this improve velocity?"
+    - "How is success measured?"
+    - "Is it compatible with our current tools?"
+  default:
+    - "Is the value proposition clear?"
+    - "Is this relevant to my situation?"
+    - "What is the next step?"
+
+scoring_rubric:
+  - score: 0
+    description: "No persona alignment; wrong funnel stage; no reviewer questions addressed."
+  - score: 3
+    description: "Weak alignment; structure mismatched to funnel stage."
+  - score: 5
+    description: "Partial alignment; some reviewer questions addressed."
+  - score: 7
+    description: "Good alignment; correct structure; most reviewer questions addressed."
+  - score: 9
+    description: "Strong alignment; persona concerns directly addressed."
+  - score: 10
+    description: "Exemplary resonance; speaks directly to persona at the right stage."

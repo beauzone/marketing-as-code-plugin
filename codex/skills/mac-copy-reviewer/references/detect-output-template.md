@@ -1,5 +1,8 @@
 # Detect mode — output template
 
+> The "maps to …" notes below describe the source-repository engine's return
+> value. In the installed plugin, render the sections directly.
+
 Detect mode flags AI patterns without rewriting. Render exactly two sections.
 
 ---

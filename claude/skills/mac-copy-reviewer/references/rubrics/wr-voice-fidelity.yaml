@@ -1,0 +1,63 @@
+# wr-voice-fidelity — Writing Quality bundle dimension
+# Scores fidelity to brand voice and writer profile: consistency, opinion strength,
+# original analysis. (BEA-61, Cycle 67)
+# NOTE: distinct from rubrics/writer-voice-fidelity.yaml (Cycle 24 standalone rubric).
+# This is a bundle dimension scaffold.
+# Loaded by skills/_shared/standalone_scoring.py::score_voice_fidelity().
+
+metadata:
+  id: wr-voice-fidelity
+  version: "1.0.0"
+  schema_version: "1.0"
+  display_name: "Voice Fidelity"
+  dimension: wr-voice-fidelity
+  description: >
+    Evaluates fidelity to brand voice and writer profile — voice consistency,
+    opinion strength, and original analysis.
+
+dimension_id: wr-voice-fidelity
+bundle: writing_quality
+weight: 0.25
+scoring_model_tier: standard
+context_required:
+  - brand_voice_guide
+  - writer_profile
+
+sub_dimensions:
+  voice_consistency:
+    weight: 0.4
+    description: "Tone, register, and diction match the brand voice guide throughout."
+  opinion_strength:
+    weight: 0.3
+    description: "Content takes a defensible position rather than hedging or presenting all sides equally."
+  original_analysis:
+    weight: 0.3
+    description: "Adds an original connection, projection, or synthesis — not a summary."
+
+# Hedging markers that lower opinion_strength.
+hedge_markers:
+  - "it could be argued"
+  - "some might say"
+  - "arguably"
+  - "potentially"
+  - "it depends"
+  - "time will tell"
+  - "only time will tell"
+  - "on the other hand"
+  - "that said"
+  - "to some extent"
+  - "in many ways"
+
+scoring_rubric:
+  - score: 0
+    description: "No discernible voice; generic and hedged throughout."
+  - score: 3
+    description: "Weak voice match; heavy hedging; no original analysis."
+  - score: 5
+    description: "Partial voice match; some position-taking."
+  - score: 7
+    description: "Good voice match; clear position; some original analysis."
+  - score: 9
+    description: "Strong voice match; defensible position; original synthesis."
+  - score: 10
+    description: "Exemplary voice; distinctive position and original analysis."

@@ -1,5 +1,8 @@
 # Rewrite mode — output template
 
+> The "maps to …" notes below describe the source-repository engine's return
+> value. In the installed plugin, render the sections directly.
+
 Rewrite mode flags, fixes, and runs a second-pass audit. Render exactly four
 sections.
 

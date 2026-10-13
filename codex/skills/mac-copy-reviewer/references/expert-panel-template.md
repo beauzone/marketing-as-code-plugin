@@ -1,5 +1,8 @@
 # Expert-panel mode — output template
 
+> The "maps to …" notes below describe the source-repository engine's return
+> value. In the installed plugin, render the sections directly.
+
 Expert-panel mode reviews content as a target persona, then produces a targeted
 rewrite that closes the gaps that persona cares about. Render exactly two
 sections.
@@ -14,12 +17,14 @@ Header line:
 Reviewing as [Persona Name], [Title] at [Company Type]
 ```
 
-For each of the persona's characteristic questions (from
-`wr-persona-resonance.yaml` `persona_reviewer_questions`, or the persona file in
-the company pack):
+Ask the combined question set described in SKILL.md "Persona questions": the
+rubric's role questions (`references/rubrics/wr-persona-resonance.yaml`
+`persona_reviewer_questions`) **and** 3–5 questions derived from the company's
+persona file, company-derived ones first where they overlap. Tag each question
+with its source:
 
 ```
-Q: <the characteristic question>
+Q [company persona | rubric]: <the characteristic question>
    Coverage: yes | partially | no
    <if yes/partially:> Passage: "…relevant quoted passage…"
    <if no:> Missing: <what the content does not address>
@@ -43,12 +48,12 @@ Maps to `section_1_review`:
 
 ## Persona resolution
 
-- A persona named in the request ("run the CFO reviewer") is normalized
-  (lowercase, spaces→underscores) and looked up in the loaded questions map.
+- A persona named in the request ("run the CFO reviewer") is matched to the
+  company's persona files first, then to a rubric role key (`cio`, `cfo`,
+  `practitioner`, `vp_marketing`).
 - If not provided, the company pack's **primary ICP** is used.
-- If the persona is not in the pack, fall back gracefully to the scaffold
-  `default` question set. The returned dict sets `persona_found: false` and
-  `fallback_used: true`.
+- If the persona isn't in the company pack, use the rubric's role questions alone
+  (the `default` set when no role fits) and say that no company persona was found.
 
 ---
 

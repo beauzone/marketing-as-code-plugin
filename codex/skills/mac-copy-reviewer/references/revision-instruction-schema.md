@@ -1,5 +1,8 @@
 # Revision instructions schema (grader-loop contract)
 
+> **MaC source repository only.** The installed plugin never emits this block; see
+> SKILL.md "Revision instructions".
+
 When any review mode scores below the 70% publish threshold, the engine emits a
 structured `revision_instructions` block in the returned dict. It is **not shown
 to the user** — it is the machine-readable contract consumed by the BEA-65

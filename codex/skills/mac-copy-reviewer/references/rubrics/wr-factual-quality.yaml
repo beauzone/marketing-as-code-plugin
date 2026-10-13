@@ -1,0 +1,86 @@
+# wr-factual-quality — Writing Quality bundle dimension
+# Scores factual accuracy, source attribution, and freshness. factual_accuracy is a
+# hard floor: a load-bearing false claim blocks publication. (BEA-61, Cycle 67)
+# Loaded by skills/_shared/standalone_scoring.py::score_factual_quality().
+
+metadata:
+  id: wr-factual-quality
+  version: "1.1.0"
+  schema_version: "1.0"
+  display_name: "Factual Quality"
+  dimension: wr-factual-quality
+  description: >
+    Evaluates factual accuracy, source attribution, and freshness. Accuracy is a
+    hard floor — a false load-bearing claim blocks publication.
+
+dimension_id: wr-factual-quality
+bundle: writing_quality
+weight: 0.25
+scoring_model_tier: fast
+
+sub_dimensions:
+  factual_accuracy:
+    weight: 0.4
+    hard_floor: true
+    description: "Claims are true and verifiable. A false load-bearing claim sets score to 0."
+  source_attribution:
+    weight: 0.3
+    description: "Claims are sourced. Inline citations and named sources raise the score."
+  factual_freshness:
+    weight: 0.3
+    description: "Time-sensitive claims are current within the claim type's horizon."
+
+# Citation density targets (citations per 1000 words) by content type
+citation_density:
+  thought_leadership: 6
+  data_led: 10
+  case_study: 4
+  blog_post: 6
+  whitepaper: 10
+  cold_email: 0
+  linkedin_post: 2
+  default: 4
+
+# Freshness horizons (months) by claim type
+freshness_horizons:
+  market_data: 3
+  research: 12
+  competitive: 6
+  regulatory: 6
+  general: 12
+
+# Evidence required per proof-point claim_type (BEA-260, WS5). Applied by
+# source_attribution: a claim carrying a claim_type is attributed adequately only when
+# the evidence named here is present. Keys mirror the claim_type enum in
+# schemas/messaging-framework.schema.yaml, schemas/product.schema.yaml, and
+# schemas/pack/pack-proof-points.schema.yaml.
+#
+# Distinct from freshness_horizons above, which is keyed by SUBJECT MATTER (how quickly
+# a fact goes stale). This block is keyed by the KIND OF ASSERTION (what it takes to
+# stand the claim up in the first place). A claim has one of each.
+claim_type_evidence_requirements:
+  outcome: "Named customer or study, plus a stated measurement window."
+  technical: "Reproducible benchmark or spec reference, with the conditions stated."
+  comparative: "Dated, cited evidence for both sides — the strictest bar."
+  security: "The certification, audit, or control itself; a paraphrase does not attribute it."
+  financial: "Currency, date, and basis of calculation."
+
+scoring_rubric:
+  - score: 0
+    description: "False load-bearing claim present. Hard floor triggered."
+  - score: 3
+    description: "Multiple unsourced or stale claims; weak attribution."
+  - score: 5
+    description: "Some sourcing gaps; freshness uncertain."
+  - score: 7
+    description: "Mostly sourced; minor attribution or freshness gaps."
+  - score: 9
+    description: "Well-sourced and current; isolated gaps."
+  - score: 10
+    description: "Fully sourced, accurate, and current."
+
+# Markers used by the heuristic scorer to detect false load-bearing claims in smoke tests.
+known_false_claim_markers:
+  - "eiffel tower is in berlin"
+  - "great wall of china is visible from space with the naked eye"
+  - "the sun revolves around the earth"
