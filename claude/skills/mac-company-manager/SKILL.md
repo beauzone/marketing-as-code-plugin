@@ -1,6 +1,6 @@
 ---
 name: mac-company-manager
-version: 2.3.2
+version: 2.4.0
 description: >
   Creates, updates, and distributes company packs and brand packs for the
   Marketing as Code ecosystem. Runs a comprehensive onboarding interview,
@@ -16,7 +16,7 @@ description: >
 ---
 
 <!--
-SKILL_VERSION: 2.3.2
+SKILL_VERSION: 2.4.0
 SKILL_UPDATED: 2026-10-13
 -->
 
@@ -93,6 +93,21 @@ returns instead of saying the change is live.
 **If the company already exists on the server, the server pack is canonical.**
 Read and edit it there. Do not build a parallel local copy at
 `~/.claude/mac/companies/` for it — two copies drift.
+
+**Follow the pack's own governance before changing anything.** Before any
+update, check the pack's file list — `list_company_pack_files` for a server
+pack, or the pack directory itself for a local pack — for:
+- `governance/*.yaml` (e.g. a drift policy) — read it and follow its rules,
+  including any write guards (for example, files whose `_source_meta.approval`
+  is `pending` may be off-limits to direct edits) and accepted exceptions.
+- `decisions/` (MDRs) — a decision recorded there overrides an interview answer;
+  if the user asks for something a decision rules out, say so and ask before
+  changing it.
+- An evidence map (`brands/{brand}/messaging/evidence-map.yaml`) or source
+  extracts (`research/source-extracts.yaml`) — proof points are tied to their
+  sources. **Never add or change a proof point, statistic or claim without its
+  linked source entry.** Update both together; if the user can't supply the
+  source, don't write the proof point — record it as an open item and tell them.
 
 Then pick the **persistence target** for the session:
 
@@ -260,7 +275,16 @@ use the bundled `references/` files.
 ## 3. Company Creation Flow
 
 Triggered by `create company`. This is an admin-focused, thorough onboarding
-interview that can be interrupted and resumed at any phase. After each phase,
+interview that can be interrupted and resumed at any phase.
+
+**Check first, before asking anything.** If the persistence target is the MaC
+server and the company isn't already in `list_my_companies` — or is listed but has
+no provisioned pack (Phase 1 step 3) — setting it up needs a
+Platform Admin (`is_platform_admin` in that same result; see Phase 1 step 3). If
+the user isn't one, stop here — before the URL crawl or any interview question —
+and say: "Creating a new company on the MaC server needs a platform admin. Ask
+one to create and provision it and give you owner or editor access; then run
+`create company` again." Don't collect answers the user can't save. After each phase,
 write files to the session's persistence target (§0 Step 1 — local disk in
 Claude Code, the MaC server write tools in sandboxed venues) and announce
 what was created.
@@ -290,6 +314,26 @@ what was created.
 
 3. **Derive company-id:** lowercase, hyphenated slug from display name.
    Confirm with user before creating directories.
+
+   **New company on the MaC server.** Being listed in `list_my_companies` only
+   means the company is registered; check its pack exists too (`list_company_pack_files`
+   or `get_pack_completeness` returns the seeded skeleton, not an error or an
+   empty pack). If both hold, skip this and go straight to writing files (owner,
+   admin or editor can). If it's listed but the pack isn't seeded, it still needs
+   step 2: a Platform Admin runs `provision_company` (idempotent); anyone else
+   stops and asks a platform admin to provision it. Pack files can only be written for a
+   company the server already knows, so a brand-new company needs three
+   Platform-Admin-only steps first (`list_my_companies` reports
+   `is_platform_admin`):
+   1. `create_company(slug, display_name)` — registers the company.
+   2. `provision_company(slug)` — seeds the pack skeleton in its repo; it
+      returns `already_provisioned` if done, or a structured error that must be
+      shown, not retried silently.
+   3. `grant_user_role(user_email, company_slug, role)` — for anyone else who
+      needs access (the admin creating it has access already).
+   Then write files with `create_company_pack_file` as below. (Non-admins were
+   already stopped at the start of `create company`.) Never write pack files for
+   a company the server doesn't list.
 
 4. **Create directory structure** (local-disk target; with the **server**
    target there is nothing to pre-create — the same tree comes into being
@@ -865,7 +909,7 @@ If yes: for each writer:
    first — only report files the server actually holds):
    > Location: MaC server pack `{company-id}` (committed[, +N pending review])
 
-4. **Offer export:**
+4. **Offer export** (see §4 for exporting a server pack):
    > "Would you like to export this pack as a .zip for sharing with teammates?"
 
 ---
@@ -897,6 +941,14 @@ don't need the full company pack.
 │   └── {writer-id}.yaml               (if present)
 └── pack.yaml
 ```
+
+**Exporting a server pack.** When the pack lives on the MaC server, build the
+export from it: `list_company_pack_files`, then `get_company_pack_file` for each
+file in scope, written into the structure above in a working folder, then
+zipped. Binary assets (decks, logos) are not on the server; list them in the
+export's `pack.yaml` under `assets_not_included` with their known locations. In
+claude.ai deliver the zip from `/mnt/user-data/outputs/`; elsewhere, the current
+working directory.
 
 **pack.yaml for brand export always includes:**
 ```yaml
@@ -1074,14 +1126,25 @@ When a PPTX file is uploaded or provided via path, run `scripts/extract_pptx_tem
    ```
 
 6. **Store files** in `templates/pptx/{template-name}/`:
-   - `template.pptx` (original file)
+   - `template.pptx` (original file) — **local disk only**
    - `manifest.json`
    - `content-schema.json`
    - `copy-prompt.md`
 
+   **With the server as the persistence target**, write only the three text
+   files: the server stores text, not binary files, so `template.pptx` cannot be
+   saved there. Ask the user where the original deck lives (a shared drive path
+   or URL) and record it in `manifest.json` as `"source_file_location"`, so the
+   content creator can ask for the file when it builds from this template. Tell
+   the user the deck itself was not uploaded.
+
 ### PDF Brand Guidelines Extraction
 
-When a PDF is uploaded, extract brand elements and map to MaC schema fields:
+When a PDF is uploaded, extract brand elements and map to MaC schema fields.
+Reading the PDF directly is fine. For long guidelines, the bundled
+`scripts/extract_brand_from_pdf.py <pdf> --brand-id {brand-id}` does a first pass
+(colours, fonts, sections); it needs `pip install pypdf pdfplumber` (add
+`--break-system-packages` if pip asks). Either way:
 
 1. Extract all text. Look for sections labeled: Colors, Typography, Logo, Tone,
    Voice, Messaging, Values, Fonts.

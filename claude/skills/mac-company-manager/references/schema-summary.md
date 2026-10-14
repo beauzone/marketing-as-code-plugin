@@ -53,7 +53,11 @@ Source schemas: `beauzone/mac-registry/schemas/` and `marketing-as-code/schemas/
 
 ---
 
-## voice.yaml (`schemas/brand-voice.schema.yaml`)
+## voice.yaml (`schemas/pack/pack-voice.schema.yaml`)
+
+> Company-pack voice files use the **pack** voice schema (only
+> `voice.characteristics` is required). `schemas/brand-voice.schema.yaml` is MaC's own house voice
+> format with different required fields; don't validate pack voice files against it.
 
 **Authority level:** `tier_1_brand` | **Org scope:** `global`
 
@@ -66,12 +70,12 @@ Source schemas: `beauzone/mac-registry/schemas/` and `marketing-as-code/schemas/
 | `metadata.schema_version` | string | `"1.0"` |
 | `metadata.authority_level` | enum | `tier_1_brand` |
 | `metadata.org_scope` | enum | `global` |
-| `voice.characteristics` | list[string] | Brand personality adjectives |
-| `voice.tone_guidance` | string | How to write in this brand's voice |
+| `voice.characteristics` | list[string] | Brand personality adjectives (non-empty) |
 
 ### Optional (collect during brand interview)
 | Field | Notes |
 |---|---|
+| `voice.tone_guidance` | How to write in this brand's voice (always collect it) |
 | `voice.preferred_terms` | Terms to use |
 | `voice.prohibited_terms` | Terms to avoid |
 | `voice.writing_principles` | do/don't pairs |

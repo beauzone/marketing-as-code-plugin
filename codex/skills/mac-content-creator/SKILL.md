@@ -1,11 +1,11 @@
 ---
 name: mac-content-creator
-version: 2.3.3
+version: 2.3.4
 description: "create, edit, and export branded marketing documents and media across formats (pptx, docx, xlsx, pdf, markdown, text, rtf, and remotion video). reads company/brand context from the shared MaC company pack path or MCP server. writes copy AND assembles finished documents in a single pass — datasheets, case studies, one-pagers, blog posts, email copy, social content, branded presentations, and videos. applies brand voice, terminology, messaging pillars, proof points, and visual identity from the company pack. supports writer profile voice calibration. reads the governed library and company context live from the MaC server."
 ---
 
 <!--
-SKILL_VERSION: 2.3.3
+SKILL_VERSION: 2.3.4
 SKILL_UPDATED: 2026-10-13
 -->
 
@@ -406,6 +406,17 @@ Do not re-run strategy analysis — use the output as your content source.
    workflow below applies only to a template *folder* that actually contains
    `template.pptx`, `manifest.json`, `content-schema.json` and `copy-prompt.md`;
    don't look for those files behind a YAML spec.
+   A template folder stored on the server has the three text files but no
+   `template.pptx` (the server stores text only); ask the user for the deck,
+   pointing them to `manifest.json`'s `source_file_location` when it is set.
+   Once they attach it, check it matches `manifest.json` (same slide count, and
+   the shape names the manifest lists exist on those slides) before treating it
+   as the folder's `template.pptx` and running the single-pass workflow. If it
+   doesn't match, say so and ask for the right deck; don't assemble against a
+   mismatched one. If they can't supply it, don't run the workflow: write the copy
+   as a separate content file that follows the field names and limits in
+   `content-schema.json` (never edit `content-schema.json` itself), and say the
+   branded deck couldn't be built.
 2. Company-specific templates at `~/.claude/mac/companies/{id}/templates/`
 3. Legacy templates at `~/.claude/skills/document-creator/companies/{id}/templates/`
    (or `~/.claude/skills/mac-content-creator/companies/{id}/templates/`)

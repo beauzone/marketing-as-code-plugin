@@ -1,3 +1,6 @@
+## [2.4.0] - 2026-10-13
+- Plugin 0.1.14: new-company flow on the MaC server (create_company, provision_company, grant_user_role; non-admins told to ask a platform admin); pack governance honoured before edits (governance/, decisions/, evidence map / source extracts — no proof point without its source); PPTX templates store text files only on the server and record the deck's location; export from a server pack; PDF extraction script documented with its dependency; schema summary names the pack voice schema.
+
 # Changelog — MaC Company Manager
 
 ## v1.2.0 — 2026-04-28

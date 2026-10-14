@@ -1,3 +1,6 @@
+## [2.3.4] - 2026-10-13
+- Plugin 0.1.14: server-stored template folders (no `template.pptx`) ask the user for the deck, using `manifest.json`'s `source_file_location`.
+
 ## [2.3.3] - 2026-10-13
 - Plugin 0.1.12 (Build Cycle 284): dead registry fetches replaced with MaC server calls (`list_templates`, `get_template`, `list_writer_profiles`, `get_writer_profile`); legacy cache and `sync` marked archival; company templates read from the server first, with base `.pptx`/`.docx` files requested from the user; YAML generation specs distinguished from PPTX template folders; system-default brand pack path made relative to the skill; output path no longer assumes `/mnt/user-data/outputs/`.
 
