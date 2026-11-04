@@ -47,3 +47,21 @@
 | `influencer-creator-brief` | Influencer & Creator Brief | Docs (docx) | Creator partnership scope, deliverables, usage rights, performance KPIs |
 | `retention-lifecycle-plan` | Retention & Lifecycle Plan | Docs (docx) | Retention program, reactivation flows, subscription rescue, loyalty mechanics |
 | `channel-strategy` | Channel Strategy | Slides (pptx) / Spreadsheets (xlsx) | Multi-channel growth and distribution plan with channel-level economics |
+
+---
+
+## Content & Campaign Asset Templates
+
+| Template ID | Document Type | Format | Best For |
+|---|---|---|---|
+| `whitepaper-technical` | Whitepaper (Technical) | Docs (markdown) | In-depth paper for technical evaluators, with evidence, limitations and references |
+| `whitepaper-business` | Whitepaper (Business) | Docs (markdown) | Executive-level paper with a framework and a business case |
+| `ebook` | eBook | Docs (markdown) | Chaptered, skimmable lead-generation asset |
+| `research-report` | Research Report | Docs (markdown) | Original research with methodology and findings kept separate from interpretation |
+| `press-release` | Press Release | Docs (markdown) | News release for launches, funding, partnerships and milestones |
+| `byline-article` | Contributed Article (Byline) | Docs (markdown) | Point-of-view article for third-party placement, no product pitch |
+| `landing-page` | Landing Page | Web copy (markdown) | Single-goal page for a campaign, gated asset, event or offer |
+| `x-post` | X Post | Social copy (markdown) | Single post or thread within the character limit |
+| `social-video` | Social Video (30–60s) | Video script (markdown) | Short vertical or feed video script that works with the sound off |
+| `product-demo-video` | Product Demo Video (60–120s) | Video script (markdown) | Timed demo script tied to named product screens |
+| `explainer-video` | Website Explainer (60–120s) | Video script (markdown) | Homepage or product page explainer script with a story arc |

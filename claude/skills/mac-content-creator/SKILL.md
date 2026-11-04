@@ -1,6 +1,6 @@
 ---
 name: mac-content-creator
-version: 2.3.4
+version: 2.3.5
 description: "create, edit, and export branded marketing documents and media across formats (pptx, docx, xlsx, pdf, markdown, text, rtf, and remotion video). reads company/brand context from the shared MaC company pack path or MCP server. writes copy AND assembles finished documents in a single pass — datasheets, case studies, one-pagers, blog posts, email copy, social content, branded presentations, and videos. applies brand voice, terminology, messaging pillars, proof points, and visual identity from the company pack. supports writer profile voice calibration. reads the governed library and company context live from the MaC server."
 ---
 
@@ -510,12 +510,18 @@ default revision-cycle count — the *shape* of the piece, independent of voice.
    - **Content-type scaffold** (`b2b-blog-post`, `b2c-email`, …): these are a
      separate family the server does **not** serve — `get_template` returns
      document templates (`solution-brief`, `case-study`, `one-pager`, …), not
-     content-type scaffolds, so do not substitute one for the other. Locally,
+     content-type scaffolds, so never pass a scaffold id to `get_template`. Locally,
      read `templates/content-types/custom/` (company overrides) before
      `templates/content-types/` (system), merged over `_base.yaml`. If no
-     scaffold is available, follow the non-blocking rule below.
+     scaffold is available, use a matching document template (next item) or,
+     if there is none, follow the non-blocking rule below.
    - **Document template:** when the deliverable *is* a document template,
-     use `list_templates` / `get_template(template_id)`.
+     use `list_templates` / `get_template(template_id)`. That includes
+     `whitepaper-technical`, `whitepaper-business`, `ebook`, `research-report`,
+     `press-release`, `byline-article`, `landing-page`, `x-post`, `social-video`,
+     `product-demo-video` and `explainer-video`. When no scaffold is available
+     and `list_templates` has a template for the requested format, follow that
+     template's structure in place of the scaffold.
    (`skills/_shared/template_loader.py` does the local lookup in the MaC source
    repository; it is not part of the installed plugin.)
 3. **Load the writer profile** (§2) — its `copy_structure` (when not `default`)
@@ -534,8 +540,8 @@ default revision-cycle count — the *shape* of the piece, independent of voice.
 `logger.add_warning`) and an empty fragment — generation proceeds without a
 scaffold using brand context alone. Never block generation on a missing template.
 The helper only logs that warning; **you** must tell the user no scaffold was
-found. (In the installed plugin, apply the same rule directly: no scaffold →
-generate from brand context and say so.)
+found. (In the installed plugin, apply the same rule directly: no scaffold and
+no matching document template → generate from brand context and say so.)
 
 The effective revision-cycle limit for the grader loop is
 `min(system_hard_cap=3, company_cap, content_type_override, template

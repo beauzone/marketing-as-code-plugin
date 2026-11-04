@@ -1,3 +1,6 @@
+## [2.3.5] - 2026-11-03
+- Plugin 0.1.15 (BEA-595): routing names the new long-form, campaign and video document templates; when no scaffold is available, a matching document template is used before falling back to brand context alone.
+
 ## [2.3.4] - 2026-10-13
 - Plugin 0.1.14: server-stored template folders (no `template.pptx`) ask the user for the deck, using `manifest.json`'s `source_file_location`.
 

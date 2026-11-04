@@ -1,6 +1,6 @@
 ---
 name: mac-gtm-strategist
-version: 2.5.3
+version: 2.5.4
 description: >
   A structured B2B and B2C marketing and go-to-market strategy skill backed by
   analytical frameworks, SME buyer personas, B2C operator personas, consumer
@@ -607,6 +607,22 @@ and quality criteria.
 | `influencer-creator-brief` | Creator partnership scope, deliverables, campaign brief |
 | `retention-lifecycle-plan` | Retention program, reactivation, subscription rescue, loyalty |
 | `channel-strategy` | Multi-channel growth and distribution plan |
+
+### Content & Campaign Asset Templates
+
+| Template | Best For |
+|---|---|
+| `whitepaper-technical` | In-depth paper for technical evaluators, with evidence, limitations and references |
+| `whitepaper-business` | Executive-level paper with a framework and a business case |
+| `ebook` | Chaptered, skimmable lead-generation asset |
+| `research-report` | Original research with methodology and findings kept separate from interpretation |
+| `press-release` | News release for launches, funding, partnerships and milestones |
+| `byline-article` | Point-of-view article for third-party placement, no product pitch |
+| `landing-page` | Single-goal page for a campaign, gated asset, event or offer |
+| `x-post` | Single post or thread within the character limit |
+| `social-video` | Short vertical or feed video script that works with the sound off |
+| `product-demo-video` | Timed demo script tied to named product screens |
+| `explainer-video` | Homepage or product page explainer script with a story arc |
 
 **When to apply:** User asks to create a document, or framework output naturally maps
 to a document type.
